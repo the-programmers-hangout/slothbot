@@ -10,7 +10,9 @@ public class Config {
   private static final Dotenv ENV = Dotenv.configure().ignoreIfMissing().load();
 
   private static final SmallD SMALLD = SmallD.create(getDiscordToken());
+
   private static final MessageCounter MESSAGE_COUNTER = new MessageCounter();
+  private static final Limiter LIMITER = new Limiter(SMALLD, MESSAGE_COUNTER);
 
   public static SmallD getSmallD() {
     return SMALLD;
@@ -27,5 +29,10 @@ public class Config {
   @Injectable
   public static MessageCounter getMessageCounter() {
     return MESSAGE_COUNTER;
+  }
+
+  @Injectable
+  public static Limiter getLimiter() {
+    return LIMITER;
   }
 }

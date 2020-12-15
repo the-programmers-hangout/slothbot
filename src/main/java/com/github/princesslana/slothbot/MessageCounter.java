@@ -59,11 +59,12 @@ public class MessageCounter {
     pastBuckets.set(rotated);
   }
 
-  public ImmutableList<Long> getBuckets(String channelId) {
+  public ImmutableList<Rate> getBuckets(String channelId) {
     var counts = pastBuckets.get().stream().map(b -> b.getCount(channelId));
 
     return Stream.concat(counts, Stream.generate(() -> 0L))
         .limit(PAST_BUCKETS_SIZE)
+        .map(c -> Rate.per(BUCKET_DURATION, c))
         .collect(ImmutableList.toImmutableList());
   }
 
