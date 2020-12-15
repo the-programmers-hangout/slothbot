@@ -18,6 +18,7 @@ dependencies {
     implementation("com.github.princesslana:smalld:0.2.6")
     implementation("com.google.guava:guava:30.0-jre")
     implementation("io.github.cdimascio:dotenv-java:2.2.0")
+    implementation("org.apache.commons:commons-lang3:3.11")
     implementation("org.apache.logging.log4j:log4j-api:2.14.0")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.14.0")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j18-impl:2.14.0")

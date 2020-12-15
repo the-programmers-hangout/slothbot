@@ -39,7 +39,7 @@ public class DiagnosticCommand {
           for (int mins = 0; mins < buckets.size(); mins++) {
             var cstr =
                 buckets.get(mins).stream()
-                    .map(c -> String.format("%3d", c))
+                    .map(r -> String.format("%3d", r.getCount()))
                     .collect(Collectors.joining(" "));
             output.add(String.format("%7dm %s", mins, cstr));
           }
