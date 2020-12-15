@@ -4,6 +4,8 @@ import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.Preconditions;
 import disparse.parser.reflection.Injectable;
 import io.github.cdimascio.dotenv.Dotenv;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class Config {
 
@@ -11,8 +13,10 @@ public class Config {
 
   private static final SmallD SMALLD = SmallD.create(getDiscordToken());
 
-  private static final MessageCounter MESSAGE_COUNTER = new MessageCounter();
-  private static final Limiter LIMITER = new Limiter(SMALLD, MESSAGE_COUNTER);
+  private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(32);
+
+  private static final MessageCounter MESSAGE_COUNTER = new MessageCounter(EXECUTOR);
+  private static final Limiter LIMITER = new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR);
 
   public static SmallD getSmallD() {
     return SMALLD;

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,13 +21,17 @@ public class MessageCounter {
   private static final Duration BUCKET_DURATION = Duration.ofSeconds(10);
   private static final int PAST_BUCKETS_SIZE = 30;
 
-  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
   private final AtomicReference<CountingBucket> currentBucket =
       new AtomicReference<>(new CountingBucket());
 
   private final AtomicReference<ImmutableList<ImmutableBucket>> pastBuckets =
       new AtomicReference<>(ImmutableList.of());
+
+  private final ScheduledExecutorService executor;
+
+  public MessageCounter(ScheduledExecutorService executor) {
+    this.executor = executor;
+  }
 
   private void onGatewayPayload(String payload) {
     var json = Json.parse(payload).asObject();
@@ -69,9 +72,9 @@ public class MessageCounter {
   }
 
   public void start(SmallD smalld) {
-    smalld.onGatewayPayload((p) -> CompletableFuture.runAsync(() -> onGatewayPayload(p)));
+    smalld.onGatewayPayload((p) -> CompletableFuture.runAsync(() -> onGatewayPayload(p), executor));
 
-    scheduler.scheduleAtFixedRate(
+    executor.scheduleAtFixedRate(
         this::rotateBucket,
         BUCKET_DURATION.toSeconds(),
         BUCKET_DURATION.toSeconds(),

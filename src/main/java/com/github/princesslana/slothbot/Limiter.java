@@ -6,7 +6,6 @@ import com.google.common.collect.Streams;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
@@ -16,22 +15,22 @@ public class Limiter {
 
   private static final Logger LOG = LogManager.getLogger(Limiter.class);
 
-  private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
   private final SmallD smalld;
   private final MessageCounter counter;
+  private final ScheduledExecutorService executor;
 
   private final ConcurrentMap<String, Rate> limits = new ConcurrentHashMap<>();
   private final ConcurrentMap<String, Integer> slowmodes = new ConcurrentHashMap<>();
 
-  public Limiter(SmallD smalld, MessageCounter counter) {
+  public Limiter(SmallD smalld, MessageCounter counter, ScheduledExecutorService executor) {
     this.smalld = smalld;
     this.counter = counter;
+    this.executor = executor;
   }
 
   private void updateSlowMode() {
     LOG.debug("Updating slow mode for {} channels...", limits.size());
-    limits.keySet().forEach(cid -> CompletableFuture.runAsync(() -> updateSlowMode(cid)));
+    limits.keySet().forEach(cid -> CompletableFuture.runAsync(() -> updateSlowMode(cid), executor));
   }
 
   private void updateSlowMode(String channelId) {
@@ -72,6 +71,6 @@ public class Limiter {
   }
 
   public void start() {
-    scheduler.scheduleAtFixedRate(this::updateSlowMode, 0, 10, TimeUnit.SECONDS);
+    executor.scheduleAtFixedRate(this::updateSlowMode, 0, 10, TimeUnit.SECONDS);
   }
 }
