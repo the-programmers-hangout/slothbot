@@ -71,6 +71,6 @@ public class Limiter {
   }
 
   public void start() {
-    executor.scheduleAtFixedRate(this::updateSlowMode, 0, 10, TimeUnit.SECONDS);
+    executor.scheduleAtFixedRate(this::updateSlowMode, 10, 10, TimeUnit.SECONDS);
   }
 }
