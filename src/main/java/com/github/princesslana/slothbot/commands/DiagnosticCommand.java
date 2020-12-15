@@ -1,11 +1,15 @@
 package com.github.princesslana.slothbot.commands;
 
 import com.github.princesslana.slothbot.MessageCounter;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
 import disparse.discord.smalld.DiscordResponse;
 import disparse.parser.reflection.CommandHandler;
+import disparse.parser.reflection.Flag;
+import disparse.parser.reflection.ParsedEntity;
+import disparse.parser.reflection.Usage;
+import disparse.parser.reflection.Usages;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -19,14 +23,34 @@ public class DiagnosticCommand {
     this.counter = counter;
   }
 
-  @CommandHandler(commandName = "buckets")
-  public DiscordResponse count() {
+  @ParsedEntity
+  private static class Options {
+    @Flag(
+        shortName = 'c',
+        longName = "channel",
+        description =
+            "The id of the channel to rate limit. "
+                + "Defaults to the current channel if not provided.")
+    public String channelId;
+  }
+
+  @CommandHandler(
+      commandName = "buckets",
+      perms = {AbstractPermission.ADMINISTRATOR},
+      description = "View the current bucket counts for the current or specified channel.")
+  @Usages({
+    @Usage(usage = "", description = "View the current bucket counts for the current channel"),
+    @Usage(
+        usage = "-c <channel_id>",
+        description = "View the current bucket counts for the channel identified by channel_id")
+  })
+  public DiscordResponse count(Options opts) {
     return Try.run(
         () -> {
-          Preconditions.checkArgument(
-              request.getArgs().size() == 1, "You must include a channel id");
-
-          var channelId = request.getArgs().get(0);
+          var channelId =
+              opts.channelId == null
+                  ? request.getDispatcher().channelFromEvent(request.getEvent())
+                  : opts.channelId;
 
           // The way we retreive and format has a built in assumption that
           // the bucket size is 10 seconds.
