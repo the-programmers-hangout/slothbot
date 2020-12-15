@@ -9,8 +9,12 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Limiter {
+
+  private static final Logger LOG = LogManager.getLogger(Limiter.class);
 
   private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -26,6 +30,7 @@ public class Limiter {
   }
 
   private void updateSlowMode() {
+    LOG.debug("Updating slow mode for {} channels...", limits.size());
     limits.keySet().forEach(cid -> CompletableFuture.runAsync(() -> updateSlowMode(cid)));
   }
 
@@ -40,14 +45,21 @@ public class Limiter {
                 .mapToDouble(n -> n)
                 .sum();
 
+    LOG.debug("Calculated slow mode for channel {} as {} seconds.", channelId, slowmode);
     updateSlowMode(channelId, slowmode);
   }
 
   private void updateSlowMode(String channelId, int seconds) {
-    if (slowmodes.get(channelId) != seconds) {
-      smalld.patch(
-          "/channels/" + channelId, Json.object().add("rate_limit_per_user", seconds).toString());
+    if (slowmodes.containsKey(channelId) && slowmodes.get(channelId).intValue() == seconds) {
+      LOG.debug("Slowmode for channel {} already {} seconds.", channelId, seconds);
+      return;
     }
+
+    LOG.debug("Updating slowmode for for channel {} to {} seconds...", channelId, seconds);
+    smalld.patch(
+        "/channels/" + channelId, Json.object().add("rate_limit_per_user", seconds).toString());
+
+    slowmodes.put(channelId, seconds);
   }
 
   public void clear(String channelId) {
