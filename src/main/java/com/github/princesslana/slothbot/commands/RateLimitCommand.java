@@ -1,7 +1,10 @@
 package com.github.princesslana.slothbot.commands;
 
+import com.github.princesslana.slothbot.Channel;
+import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Limiter;
 import com.github.princesslana.slothbot.Rate;
+import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.Preconditions;
 import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
@@ -14,10 +17,12 @@ import disparse.parser.reflection.Usages;
 
 public class RateLimitCommand {
 
+  private final SmallD smalld;
   private final DiscordRequest request;
   private final Limiter limiter;
 
-  public RateLimitCommand(DiscordRequest request, Limiter limiter) {
+  public RateLimitCommand(SmallD smalld, DiscordRequest request, Limiter limiter) {
+    this.smalld = smalld;
     this.request = request;
     this.limiter = limiter;
   }
@@ -56,22 +61,25 @@ public class RateLimitCommand {
               request.getArgs().size() == 1, "You must include a rate limit");
 
           var rateLimit = Integer.parseInt(request.getArgs().get(0));
-          var channelId =
-              opts.channelId == null
-                  ? request.getDispatcher().channelFromEvent(request.getEvent())
-                  : opts.channelId;
-
           Preconditions.checkArgument(rateLimit >= 0, "Rate limit must be >= 0");
 
+          var guildId = Discord.getGuildId(request);
+          var channelId = opts.channelId == null ? Discord.getChannelId(request) : opts.channelId;
+
+          var channel = new Channel(guildId, channelId);
+          Preconditions.checkArgument(
+              channel.exists(smalld),
+              String.format("Channel %s is not a channel in this guild", channelId));
+
           if (rateLimit == 0) {
-            limiter.clear(channelId);
+            limiter.clear(channel);
             return DiscordResponse.of(
                 String.format("%s Rate limit for <#%s> cleared", Emoji.CHECKMARK, channelId));
           }
 
           var rate = Rate.perMinute(rateLimit);
 
-          limiter.set(channelId, rate);
+          limiter.set(channel, rate);
 
           return DiscordResponse.of(
               String.format(

@@ -1,6 +1,10 @@
 package com.github.princesslana.slothbot.commands;
 
+import com.github.princesslana.slothbot.Channel;
+import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.MessageCounter;
+import com.github.princesslana.smalld.SmallD;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
@@ -15,10 +19,12 @@ import java.util.stream.Collectors;
 
 public class DiagnosticCommand {
 
+  private final SmallD smalld;
   private final DiscordRequest request;
   private final MessageCounter counter;
 
-  public DiagnosticCommand(DiscordRequest request, MessageCounter counter) {
+  public DiagnosticCommand(SmallD smalld, DiscordRequest request, MessageCounter counter) {
+    this.smalld = smalld;
     this.request = request;
     this.counter = counter;
   }
@@ -47,10 +53,12 @@ public class DiagnosticCommand {
   public DiscordResponse count(Options opts) {
     return Try.run(
         () -> {
-          var channelId =
-              opts.channelId == null
-                  ? request.getDispatcher().channelFromEvent(request.getEvent())
-                  : opts.channelId;
+          var channelId = opts.channelId == null ? Discord.getChannelId(request) : opts.channelId;
+
+          var channel = new Channel(Discord.getGuildId(request), channelId);
+          Preconditions.checkArgument(
+              channel.exists(smalld),
+              String.format("Channel %s is not a channel in this guild", channelId));
 
           // The way we retreive and format has a built in assumption that
           // the bucket size is 10 seconds.
