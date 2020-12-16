@@ -19,8 +19,8 @@ public class Limiter {
   private final MessageCounter counter;
   private final ScheduledExecutorService executor;
 
-  private final ConcurrentMap<String, Rate> limits = new ConcurrentHashMap<>();
-  private final ConcurrentMap<String, Integer> slowmodes = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Channel, Rate> limits = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Channel, Integer> slowmodes = new ConcurrentHashMap<>();
 
   public Limiter(SmallD smalld, MessageCounter counter, ScheduledExecutorService executor) {
     this.smalld = smalld;
@@ -30,44 +30,45 @@ public class Limiter {
 
   private void updateSlowMode() {
     LOG.debug("Updating slow mode for {} channels...", limits.size());
-    limits.keySet().forEach(cid -> CompletableFuture.runAsync(() -> updateSlowMode(cid), executor));
+    limits.keySet().forEach(c -> CompletableFuture.runAsync(() -> updateSlowMode(c), executor));
   }
 
-  private void updateSlowMode(String channelId) {
-    var limit = limits.get(channelId);
+  private void updateSlowMode(Channel channel) {
+    var limit = limits.get(channel);
 
     var slowmode =
         (int)
             Streams.mapWithIndex(
-                    counter.getBuckets(channelId).stream(),
+                    counter.getBuckets(channel.getId()).stream(),
                     (b, idx) -> b.exceeds(limit) ? (30.0 - idx) / 10.0 : 0.0)
                 .mapToDouble(n -> n)
                 .sum();
 
-    LOG.debug("Calculated slow mode for channel {} as {} seconds.", channelId, slowmode);
-    updateSlowMode(channelId, slowmode);
+    LOG.debug("Calculated slow mode for channel {} as {} seconds.", channel, slowmode);
+    updateSlowMode(channel, slowmode);
   }
 
-  private void updateSlowMode(String channelId, int seconds) {
-    if (slowmodes.containsKey(channelId) && slowmodes.get(channelId).intValue() == seconds) {
-      LOG.debug("Slowmode for channel {} already {} seconds.", channelId, seconds);
+  private void updateSlowMode(Channel channel, int seconds) {
+    if (slowmodes.containsKey(channel) && slowmodes.get(channel).intValue() == seconds) {
+      LOG.debug("Slowmode for channel {} already {} seconds.", channel, seconds);
       return;
     }
 
-    LOG.debug("Updating slowmode for for channel {} to {} seconds...", channelId, seconds);
+    LOG.debug("Updating slowmode for for channel {} to {} seconds...", channel, seconds);
     smalld.patch(
-        "/channels/" + channelId, Json.object().add("rate_limit_per_user", seconds).toString());
+        "/channels/" + channel.getId(),
+        Json.object().add("rate_limit_per_user", seconds).toString());
 
-    slowmodes.put(channelId, seconds);
+    slowmodes.put(channel, seconds);
   }
 
-  public void clear(String channelId) {
-    limits.remove(channelId);
-    updateSlowMode(channelId, 0);
+  public void clear(Channel channel) {
+    limits.remove(channel);
+    updateSlowMode(channel, 0);
   }
 
-  public void set(String channelId, Rate limit) {
-    limits.put(channelId, limit);
+  public void set(Channel channel, Rate limit) {
+    limits.put(channel, limit);
   }
 
   public void start() {

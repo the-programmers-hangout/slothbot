@@ -18,6 +18,7 @@ public class Config {
   private static final MessageCounter MESSAGE_COUNTER = new MessageCounter(EXECUTOR);
   private static final Limiter LIMITER = new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR);
 
+  @Injectable
   public static SmallD getSmallD() {
     return SMALLD;
   }
