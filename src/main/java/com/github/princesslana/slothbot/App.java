@@ -13,6 +13,8 @@ public class App {
     Dispatcher.init(disparse);
 
     Config.getMessageCounter().start(Config.getSmallD());
+
+    Config.getLimiter().load();
     Config.getLimiter().start();
 
     Config.getSmallD().run();

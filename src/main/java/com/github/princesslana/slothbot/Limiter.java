@@ -1,8 +1,13 @@
 package com.github.princesslana.slothbot;
 
 import com.eclipsesource.json.Json;
+import com.eclipsesource.json.WriterConfig;
 import com.github.princesslana.smalld.SmallD;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Streams;
+import com.google.common.io.MoreFiles;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,14 +23,17 @@ public class Limiter {
   private final SmallD smalld;
   private final MessageCounter counter;
   private final ScheduledExecutorService executor;
+  private final Path savePath;
 
   private final ConcurrentMap<Channel, Rate> limits = new ConcurrentHashMap<>();
   private final ConcurrentMap<Channel, Integer> slowmodes = new ConcurrentHashMap<>();
 
-  public Limiter(SmallD smalld, MessageCounter counter, ScheduledExecutorService executor) {
+  public Limiter(
+      SmallD smalld, MessageCounter counter, ScheduledExecutorService executor, Path savePath) {
     this.smalld = smalld;
     this.counter = counter;
     this.executor = executor;
+    this.savePath = savePath;
   }
 
   private void updateSlowMode() {
@@ -65,10 +73,45 @@ public class Limiter {
   public void clear(Channel channel) {
     limits.remove(channel);
     updateSlowMode(channel, 0);
+    save();
   }
 
   public void set(Channel channel, Rate limit) {
     limits.put(channel, limit);
+    save();
+  }
+
+  private void save() {
+    var json = Json.array();
+
+    limits.forEach(
+        (k, v) -> json.add(Json.object().add("channel", k.toJson()).add("limit", v.toJson())));
+
+    try {
+      MoreFiles.asCharSink(savePath, Charsets.UTF_8)
+          .write(json.toString(WriterConfig.PRETTY_PRINT));
+      LOG.atDebug().log("Saved {} limits to {}", json.size(), savePath);
+    } catch (IOException e) {
+      LOG.atWarn().withThrowable(e).log("Error saving limits to {}", savePath);
+    }
+  }
+
+  public void load() {
+    try {
+      var arr = Json.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read()).asArray();
+
+      for (var json : arr) {
+        var obj = json.asObject();
+        var channel = Channel.fromJson(obj.get("channel"));
+        var rate = Rate.fromJson(obj.get("limit"));
+
+        limits.put(channel, rate);
+      }
+
+      LOG.atDebug().log("Loaded {} limits from {}", arr.size(), savePath);
+    } catch (IOException e) {
+      LOG.atWarn().withThrowable(e).log("Error loading limits from {}", savePath);
+    }
   }
 
   public void start() {

@@ -4,6 +4,7 @@ import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.Preconditions;
 import disparse.parser.reflection.Injectable;
 import io.github.cdimascio.dotenv.Dotenv;
+import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -16,7 +17,8 @@ public class Config {
   private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(32);
 
   private static final MessageCounter MESSAGE_COUNTER = new MessageCounter(EXECUTOR);
-  private static final Limiter LIMITER = new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR);
+  private static final Limiter LIMITER =
+      new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR, Path.of(getDataPath(), "limits.json"));
 
   @Injectable
   public static SmallD getSmallD() {
@@ -29,6 +31,10 @@ public class Config {
 
   public static String getDiscordToken() {
     return Preconditions.checkNotNull(ENV.get("SB_TOKEN"));
+  }
+
+  public static String getDataPath() {
+    return ENV.get("SB_DATA", "data/");
   }
 
   @Injectable
