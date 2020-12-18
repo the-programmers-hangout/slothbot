@@ -57,6 +57,10 @@ public class MessageCounter {
     pastBuckets.set(rotated);
   }
 
+  public ImmutableList<Rate> getBuckets(Channel channel) {
+    return getBuckets(channel.getId());
+  }
+
   public ImmutableList<Rate> getBuckets(String channelId) {
     var counts = pastBuckets.get().stream().map(b -> b.getCount(channelId));
 

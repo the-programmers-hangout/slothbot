@@ -1,7 +1,6 @@
 package com.github.princesslana.slothbot.commands;
 
 import com.github.princesslana.slothbot.Channel;
-import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Limiter;
 import com.github.princesslana.slothbot.Rate;
 import com.github.princesslana.smalld.SmallD;
@@ -63,18 +62,13 @@ public class RateLimitCommand {
           var rateLimit = Integer.parseInt(request.getArgs().get(0));
           Preconditions.checkArgument(rateLimit >= 0, "Rate limit must be >= 0");
 
-          var guildId = Discord.getGuildId(request);
-          var channelId = opts.channelId == null ? Discord.getChannelId(request) : opts.channelId;
-
-          var channel = new Channel(guildId, channelId);
-          Preconditions.checkArgument(
-              channel.exists(smalld),
-              String.format("Channel %s is not a channel in this guild", channelId));
+          var channel = Channel.fromRequest(smalld, request, opts.channelId);
 
           if (rateLimit == 0) {
             limiter.clear(channel);
             return DiscordResponse.of(
-                String.format("%s Rate limit for <#%s> cleared", Emoji.CHECKMARK, channelId));
+                String.format(
+                    "%s Rate limit for %s cleared", Emoji.CHECKMARK, channel.getMention()));
           }
 
           var rate = Rate.perMinute(rateLimit);
@@ -83,8 +77,8 @@ public class RateLimitCommand {
 
           return DiscordResponse.of(
               String.format(
-                  "%s Rate limit of %s set for <#%s>",
-                  Emoji.CHECKMARK, rate.humanize(), channelId));
+                  "%s Rate limit of %s set for %s",
+                  Emoji.CHECKMARK, rate.humanize(), channel.getMention()));
         });
   }
 }

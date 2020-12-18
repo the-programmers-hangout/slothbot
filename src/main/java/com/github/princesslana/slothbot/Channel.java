@@ -7,7 +7,9 @@ import com.github.princesslana.smalld.HttpException;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import disparse.discord.smalld.DiscordRequest;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 public class Channel {
   private final String guildId;
@@ -20,6 +22,10 @@ public class Channel {
 
   public String getId() {
     return channelId;
+  }
+
+  public String getMention() {
+    return String.format("<#%s>", channelId);
   }
 
   public JsonObject toJson() {
@@ -73,5 +79,25 @@ public class Channel {
 
   public static Channel fromJson(JsonObject json) {
     return new Channel(json.getString("guildId", null), json.getString("channelId", null));
+  }
+
+  public static Channel fromRequest(SmallD smalld, DiscordRequest req, String userInput) {
+    var guildId = Discord.getGuildId(req);
+    var channelId = Discord.getChannelId(req);
+
+    if (StringUtils.isNumeric(StringUtils.strip(userInput, " <#>"))) {
+      channelId = StringUtils.strip(userInput, " <#>");
+    } else if (userInput != null) {
+      throw new IllegalArgumentException(
+          String.format("Channel %s is not a channel in this guild", userInput));
+    }
+
+    var channel = new Channel(guildId, channelId);
+
+    Preconditions.checkArgument(
+        channel.exists(smalld),
+        String.format("Channel %s is not a channel in this guild", channelId));
+
+    return channel;
   }
 }
