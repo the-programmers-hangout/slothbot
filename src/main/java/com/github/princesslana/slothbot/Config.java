@@ -19,6 +19,7 @@ public class Config {
   private static final MessageCounter MESSAGE_COUNTER = new MessageCounter(EXECUTOR);
   private static final Limiter LIMITER =
       new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR, Path.of(getDataPath(), "limits.json"));
+  private static final Self SELF = new Self(SMALLD);
 
   @Injectable
   public static SmallD getSmallD() {
@@ -45,5 +46,10 @@ public class Config {
   @Injectable
   public static Limiter getLimiter() {
     return LIMITER;
+  }
+
+  @Injectable
+  public static Self getSelf() {
+    return SELF;
   }
 }

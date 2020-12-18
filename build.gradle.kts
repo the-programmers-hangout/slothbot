@@ -16,6 +16,7 @@ dependencies {
     implementation("com.eclipsesource.minimal-json:minimal-json:0.9.5")
     implementation("com.github.boscojared.disparse:disparse-smalld:master-SNAPSHOT")
     implementation("com.github.princesslana:smalld:0.2.6")
+    implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.google.guava:guava:30.0-jre")
     implementation("io.github.cdimascio:dotenv-java:2.2.0")
     implementation("org.apache.commons:commons-lang3:3.11")
