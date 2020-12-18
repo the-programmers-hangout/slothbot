@@ -1,10 +1,8 @@
 package com.github.princesslana.slothbot.commands;
 
 import com.github.princesslana.slothbot.Channel;
-import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.MessageCounter;
 import com.github.princesslana.smalld.SmallD;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
@@ -50,19 +48,14 @@ public class DiagnosticCommand {
         usage = "-c <channel_id>",
         description = "View the current bucket counts for the channel identified by channel_id")
   })
-  public DiscordResponse count(Options opts) {
+  public DiscordResponse buckets(Options opts) {
     return Try.run(
         () -> {
-          var channelId = opts.channelId == null ? Discord.getChannelId(request) : opts.channelId;
-
-          var channel = new Channel(Discord.getGuildId(request), channelId);
-          Preconditions.checkArgument(
-              channel.exists(smalld),
-              String.format("Channel %s is not a channel in this guild", channelId));
+          var channel = Channel.fromRequest(smalld, request, opts.channelId);
 
           // The way we retreive and format has a built in assumption that
           // the bucket size is 10 seconds.
-          var buckets = Lists.partition(counter.getBuckets(channelId), 6);
+          var buckets = Lists.partition(counter.getBuckets(channel), 6);
 
           var output = new StringJoiner("\n", "```", "```");
 
