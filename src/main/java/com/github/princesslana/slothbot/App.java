@@ -1,5 +1,6 @@
 package com.github.princesslana.slothbot;
 
+import com.github.princesslana.slothbot.commands.AboutCommand;
 import disparse.discord.smalld.Dispatcher;
 
 public class App {
@@ -16,6 +17,8 @@ public class App {
 
     Config.getLimiter().load();
     Config.getLimiter().start();
+
+    AboutCommand.attachMentionListener(Config.getSmallD(), Config.getSelf());
 
     Config.getSmallD().run();
   }

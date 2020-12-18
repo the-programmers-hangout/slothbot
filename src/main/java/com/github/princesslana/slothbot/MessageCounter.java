@@ -36,12 +36,7 @@ public class MessageCounter {
   private void onGatewayPayload(String payload) {
     var json = Json.parse(payload).asObject();
 
-    var isMessageCreate =
-        json.getInt("op", -1) == 0 && json.getString("t", "").equals("MESSAGE_CREATE");
-
-    if (isMessageCreate) {
-      onMessageCreate(json.get("d").asObject());
-    }
+    Discord.ifEvent(json, "MESSAGE_CREATE", this::onMessageCreate);
   }
 
   private void onMessageCreate(JsonObject d) {
