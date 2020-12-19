@@ -9,7 +9,7 @@ public class App {
     var disparse =
         new Dispatcher.Builder(App.class)
             .withSmalldClient(Config.getSmallD())
-            .withMiddleware(new PermissionMiddleware())
+            .withMiddleware(new PermissionMiddleware(Config.getModerator()))
             .prefix(Config.getPrefix())
             .build();
 

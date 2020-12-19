@@ -22,23 +22,23 @@ public class Moderator {
     this.savePath = savePath;
   }
 
-  public void addModerator(String guildId, String roleId) {
+  public void add(String guildId, String roleId) {
     if (!guildToModeratorRoles.containsEntry(guildId, roleId)) {
       guildToModeratorRoles.put(guildId, roleId);
       save();
     }
   }
 
-  public void removeModerator(String guildId, String roleId) {
+  public void remove(String guildId, String roleId) {
     guildToModeratorRoles.remove(guildId, roleId);
     save();
   }
 
-  public boolean containsModerator(String guildId, String roleId) {
+  public boolean contains(String guildId, String roleId) {
     return guildToModeratorRoles.containsEntry(guildId, roleId);
   }
 
-  public Set<String> getModerators(String guildId) {
+  public Set<String> get(String guildId) {
     return guildToModeratorRoles.get(guildId);
   }
 
