@@ -4,12 +4,10 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.WriterConfig;
 import com.google.common.base.Charsets;
+import com.google.common.collect.HashMultimap;
 import com.google.common.io.MoreFiles;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,46 +15,45 @@ import org.apache.logging.log4j.Logger;
 public class Moderator {
   private static final Logger LOG = LogManager.getLogger(Limiter.class);
 
-  private final Map<String, Set<String>> guildToModeratorRoles = new HashMap<>();
+  private final HashMultimap<String, String> guildToModeratorRoles = HashMultimap.create();
   private final Path savePath;
 
   public Moderator(Path savePath) {
     this.savePath = savePath;
   }
 
-  public void addModeratorRoleForGuild(String guildId, String roleId) {
-    ensureSetForKey(guildId).add(roleId);
+  public void addModerator(String guildId, String roleId) {
+    if (!guildToModeratorRoles.containsEntry(guildId, roleId)) {
+      guildToModeratorRoles.put(guildId, roleId);
+      save();
+    }
+  }
+
+  public void removeModerator(String guildId, String roleId) {
+    guildToModeratorRoles.remove(guildId, roleId);
     save();
   }
 
-  public boolean removeModeratorRoleForGuild(String guildId, String roleId) {
-    var removed = ensureSetForKey(guildId).remove(roleId);
-    save();
-    return removed;
+  public boolean containsModerator(String guildId, String roleId) {
+    return guildToModeratorRoles.containsEntry(guildId, roleId);
   }
 
-  public boolean containsModeratorRoleForGuild(String guildId, String roleId) {
-    return ensureSetForKey(guildId).contains(roleId);
-  }
-
-  public Set<String> getModeratorRoleForGuild(String guildId) {
-    return ensureSetForKey(guildId);
-  }
-
-  private Set<String> ensureSetForKey(String guildId) {
-    return guildToModeratorRoles.computeIfAbsent(guildId, _k -> new HashSet<>());
+  public Set<String> getModerators(String guildId) {
+    return guildToModeratorRoles.get(guildId);
   }
 
   private void save() {
     var json = Json.array();
 
-    guildToModeratorRoles.forEach(
-        (k, v) -> {
-          var obj = Json.object().add("guild", k);
-          var arr = new JsonArray();
-          v.forEach(arr::add);
-          json.add(obj.add("roles", arr));
-        });
+    guildToModeratorRoles
+        .asMap()
+        .forEach(
+            (k, v) -> {
+              var obj = Json.object().add("guild", k);
+              var arr = new JsonArray();
+              v.forEach(arr::add);
+              json.add(obj.add("roles", arr));
+            });
 
     try {
       MoreFiles.asCharSink(savePath, Charsets.UTF_8)
@@ -76,7 +73,7 @@ public class Moderator {
         var guildId = obj.get("guild").asString();
         var rolesArray = obj.get("roles").asArray();
         for (var role : rolesArray) {
-          ensureSetForKey(guildId).add(role.asString());
+          guildToModeratorRoles.put(guildId, role.asString());
         }
       }
 

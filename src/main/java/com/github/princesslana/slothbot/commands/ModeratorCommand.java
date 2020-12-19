@@ -32,7 +32,7 @@ public class ModeratorCommand {
   public DiscordResponse addModerator() {
     var guildId = Discord.getGuildId(request);
     var args = request.getArgs();
-    args.forEach(role -> moderator.addModeratorRoleForGuild(guildId, role));
+    args.forEach(role -> moderator.addModerator(guildId, role));
     return DiscordResponse.of("Successfully added %d roles", args.size());
   }
 
@@ -50,7 +50,7 @@ public class ModeratorCommand {
   public DiscordResponse removeModerator() {
     var guildId = Discord.getGuildId(request);
     var args = request.getArgs();
-    args.forEach(role -> moderator.removeModeratorRoleForGuild(guildId, role));
+    args.forEach(role -> moderator.removeModerator(guildId, role));
     return DiscordResponse.of("Successfully removed %d roles", args.size());
   }
 
@@ -65,6 +65,6 @@ public class ModeratorCommand {
   public DiscordResponse listModerator() {
     var guildId = Discord.getGuildId(request);
     return DiscordResponse.of(
-        "Moderators: \n%s", String.join("\n", moderator.getModeratorRoleForGuild(guildId)));
+        "Moderators: \n%s", String.join("\n", moderator.getModerators(guildId)));
   }
 }

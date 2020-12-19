@@ -23,7 +23,7 @@ public class Config {
   private static final Self SELF = new Self(SMALLD);
   private static final Moderator MODERATOR =
       new Moderator(Path.of(getDataPath(), "moderator.json"));
-  private static final Set<String> SENSITIVE_COMMANDS = Set.of("buckets", "ratelimit");
+  private static final Set<String> PUBLIC_COMMANDS = Set.of();
 
   @Injectable
   public static SmallD getSmallD() {
@@ -62,7 +62,7 @@ public class Config {
     return MODERATOR;
   }
 
-  public static Set<String> getSensitiveCommands() {
-    return SENSITIVE_COMMANDS;
+  public static Set<String> getPublicCommands() {
+    return PUBLIC_COMMANDS;
   }
 }
