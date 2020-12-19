@@ -33,7 +33,7 @@ public class Discord {
         .map(JsonArray::iterator)
         .map(ImmutableSet::copyOf)
         .map(s -> s.stream().map(JsonElement::getAsString).collect(Collectors.toUnmodifiableSet()))
-        .orElseGet(ImmutableSet::of);
+        .orElse(Set.of());
   }
 
   public static void ifEvent(JsonObject json, String evt, Consumer<JsonObject> f) {
