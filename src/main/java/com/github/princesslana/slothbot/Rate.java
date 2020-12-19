@@ -23,7 +23,7 @@ public class Rate {
     return count;
   }
 
-  private double getCountPerSecond() {
+  public double getCountPerSecond() {
     return (double) count / duration.toSeconds();
   }
 

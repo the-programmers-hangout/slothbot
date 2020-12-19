@@ -1,6 +1,7 @@
 package com.github.princesslana.slothbot.commands;
 
 import com.github.princesslana.slothbot.Channel;
+import com.github.princesslana.slothbot.Limiter;
 import com.github.princesslana.slothbot.MessageCounter;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.collect.Lists;
@@ -20,11 +21,14 @@ public class DiagnosticCommand {
   private final SmallD smalld;
   private final DiscordRequest request;
   private final MessageCounter counter;
+  private final Limiter limiter;
 
-  public DiagnosticCommand(SmallD smalld, DiscordRequest request, MessageCounter counter) {
+  public DiagnosticCommand(
+      SmallD smalld, DiscordRequest request, MessageCounter counter, Limiter limiter) {
     this.smalld = smalld;
     this.request = request;
     this.counter = counter;
+    this.limiter = limiter;
   }
 
   @ParsedEntity
@@ -53,13 +57,24 @@ public class DiagnosticCommand {
         () -> {
           var channel = Channel.fromRequest(smalld, request, opts.channelId);
 
+          var limit = limiter.get(channel);
+
           // The way we retreive and format has a built in assumption that
           // the bucket size is 10 seconds.
           var buckets = Lists.partition(counter.getBuckets(channel), 6);
 
           var output = new StringJoiner("\n", "```", "```");
 
-          output.add(" Time ago  0s 10s 20s 30s 40s 50s");
+          output.add(
+              limit
+                  .map(
+                      l ->
+                          String.format(
+                              "Limit: %s (%.1f per 10s)\n",
+                              l.humanize(), l.getCountPerSecond() * 10))
+                  .orElse("Channel is not rate limited\n"));
+
+          output.add("Buckets:   0s 10s 20s 30s 40s 50s");
 
           for (int mins = 0; mins < buckets.size(); mins++) {
             var cstr =
