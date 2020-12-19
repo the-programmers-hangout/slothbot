@@ -21,7 +21,7 @@ public class Config {
   private static final Limiter LIMITER =
       new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR, Path.of(getDataPath(), "limits.json"));
   private static final Self SELF = new Self(SMALLD);
-  private static final Moderator MODERATOR = new Moderator();
+  private static final Moderator MODERATOR = new Moderator(Path.of(getDataPath(), "moderator.json"));
   private static final Set<String> SENSITIVE_COMMANDS = Set.of("buckets", "ratelimit");
 
   @Injectable
