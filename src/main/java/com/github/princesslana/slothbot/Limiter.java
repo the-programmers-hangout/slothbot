@@ -8,6 +8,7 @@ import com.google.common.collect.Streams;
 import com.google.common.io.MoreFiles;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -79,6 +80,10 @@ public class Limiter {
   public void set(Channel channel, Rate limit) {
     limits.put(channel, limit);
     save();
+  }
+
+  public Optional<Rate> get(Channel channel) {
+    return Optional.ofNullable(limits.get(channel));
   }
 
   private void save() {
