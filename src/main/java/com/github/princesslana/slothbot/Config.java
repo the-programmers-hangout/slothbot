@@ -20,6 +20,7 @@ public class Config {
   private static final Limiter LIMITER =
       new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR, Path.of(getDataPath(), "limits.json"));
   private static final Self SELF = new Self(SMALLD);
+  private static final Moderator MODERATOR = new Moderator();
 
   @Injectable
   public static SmallD getSmallD() {
@@ -52,4 +53,7 @@ public class Config {
   public static Self getSelf() {
     return SELF;
   }
+
+  @Injectable
+  public static Moderator getModerator() { return MODERATOR; }
 }
