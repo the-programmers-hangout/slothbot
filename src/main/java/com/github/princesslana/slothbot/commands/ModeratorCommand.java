@@ -8,6 +8,8 @@ import disparse.discord.smalld.DiscordResponse;
 import disparse.parser.dispatch.IncomingScope;
 import disparse.parser.reflection.*;
 
+import java.util.stream.Collectors;
+
 
 public class ModeratorCommand {
 
@@ -47,5 +49,17 @@ public class ModeratorCommand {
     var args = request.getArgs();
     args.forEach(role -> moderator.removeModeratorRoleForGuild(guildId, role));
     return DiscordResponse.of("Successfully removed %d roles", args.size());
+  }
+
+  @CommandHandler(commandName = "moderator.list",
+          description = "Admin only command to list which roles are considered to be moderators.",
+          acceptFrom = IncomingScope.CHANNEL,
+          perms = {AbstractPermission.ADMINISTRATOR})
+  @Usages({
+          @Usage(usage = "", description = "list all the roles which are considered to be moderators.")
+  })
+  public DiscordResponse listModerator() {
+    var guildId = Discord.getGuildId(request);
+    return DiscordResponse.of("Moderators: \n%s", String.join("\n", moderator.getModeratorRoleForGuild(guildId)));
   }
 }
