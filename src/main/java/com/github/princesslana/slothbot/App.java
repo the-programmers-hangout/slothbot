@@ -1,6 +1,7 @@
 package com.github.princesslana.slothbot;
 
 import com.github.princesslana.slothbot.commands.AboutCommand;
+import com.github.princesslana.slothbot.middleware.PermissionMiddleware;
 import disparse.discord.smalld.Dispatcher;
 
 public class App {
@@ -8,6 +9,7 @@ public class App {
     var disparse =
         new Dispatcher.Builder(App.class)
             .withSmalldClient(Config.getSmallD())
+            .withMiddleware(new PermissionMiddleware())
             .prefix(Config.getPrefix())
             .build();
 
