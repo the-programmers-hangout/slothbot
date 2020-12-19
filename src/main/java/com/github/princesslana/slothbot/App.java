@@ -20,6 +20,8 @@ public class App {
     Config.getLimiter().load();
     Config.getLimiter().start();
 
+    Config.getModerator().load();
+
     AboutCommand.attachMentionListener(Config.getSmallD(), Config.getSelf());
 
     Config.getSmallD().run();
