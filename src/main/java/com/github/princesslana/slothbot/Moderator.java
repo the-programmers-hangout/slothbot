@@ -5,15 +5,14 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.WriterConfig;
 import com.google.common.base.Charsets;
 import com.google.common.io.MoreFiles;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Moderator {
   private static final Logger LOG = LogManager.getLogger(Limiter.class);
@@ -52,16 +51,16 @@ public class Moderator {
     var json = Json.array();
 
     guildToModeratorRoles.forEach(
-            (k, v) -> {
-              var obj = Json.object().add("guild", k);
-              var arr = new JsonArray();
-              v.forEach(arr::add);
-              json.add(obj.add("roles", arr));
-            });
+        (k, v) -> {
+          var obj = Json.object().add("guild", k);
+          var arr = new JsonArray();
+          v.forEach(arr::add);
+          json.add(obj.add("roles", arr));
+        });
 
     try {
       MoreFiles.asCharSink(savePath, Charsets.UTF_8)
-              .write(json.toString(WriterConfig.PRETTY_PRINT));
+          .write(json.toString(WriterConfig.PRETTY_PRINT));
       LOG.atDebug().log("Saved {} guilds' mappings to {}", json.size(), savePath);
     } catch (IOException e) {
       LOG.atWarn().withThrowable(e).log("Error saving guild mappings to {}", savePath);
@@ -86,5 +85,4 @@ public class Moderator {
       LOG.atWarn().withThrowable(e).log("Error loading guild mappings from {}", savePath);
     }
   }
-
 }

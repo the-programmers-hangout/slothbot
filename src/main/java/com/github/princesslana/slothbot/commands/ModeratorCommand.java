@@ -8,9 +8,6 @@ import disparse.discord.smalld.DiscordResponse;
 import disparse.parser.dispatch.IncomingScope;
 import disparse.parser.reflection.*;
 
-import java.util.stream.Collectors;
-
-
 public class ModeratorCommand {
 
   private final DiscordRequest request;
@@ -21,13 +18,16 @@ public class ModeratorCommand {
     this.moderator = moderator;
   }
 
-  @CommandHandler(commandName = "moderator.add",
-          description = "Admin only command to add which roles are considered to be moderators.",
-          acceptFrom = IncomingScope.CHANNEL,
-          perms = {AbstractPermission.ADMINISTRATOR})
+  @CommandHandler(
+      commandName = "moderator.add",
+      description = "Admin only command to add which roles are considered to be moderators.",
+      acceptFrom = IncomingScope.CHANNEL,
+      perms = {AbstractPermission.ADMINISTRATOR})
   @Usages({
-          @Usage(usage = "718166777405767771", description = "add this roleId as a moderator"),
-          @Usage(usage = "718166777405767771 424095817939419146", description = "add all listed roleIds as a moderator")
+    @Usage(usage = "718166777405767771", description = "add this roleId as a moderator"),
+    @Usage(
+        usage = "718166777405767771 424095817939419146",
+        description = "add all listed roleIds as a moderator")
   })
   public DiscordResponse addModerator() {
     var guildId = Discord.getGuildId(request);
@@ -36,13 +36,16 @@ public class ModeratorCommand {
     return DiscordResponse.of("Successfully added %d roles", args.size());
   }
 
-  @CommandHandler(commandName = "moderator.remove",
-          description = "Admin only command to remove which roles are considered to be moderators.",
-          acceptFrom = IncomingScope.CHANNEL,
-          perms = {AbstractPermission.ADMINISTRATOR})
+  @CommandHandler(
+      commandName = "moderator.remove",
+      description = "Admin only command to remove which roles are considered to be moderators.",
+      acceptFrom = IncomingScope.CHANNEL,
+      perms = {AbstractPermission.ADMINISTRATOR})
   @Usages({
-          @Usage(usage = "718166777405767771", description = "remove this roleId as a moderator"),
-          @Usage(usage = "718166777405767771 424095817939419146", description = "remove all listed roleIds as a moderator")
+    @Usage(usage = "718166777405767771", description = "remove this roleId as a moderator"),
+    @Usage(
+        usage = "718166777405767771 424095817939419146",
+        description = "remove all listed roleIds as a moderator")
   })
   public DiscordResponse removeModerator() {
     var guildId = Discord.getGuildId(request);
@@ -51,15 +54,17 @@ public class ModeratorCommand {
     return DiscordResponse.of("Successfully removed %d roles", args.size());
   }
 
-  @CommandHandler(commandName = "moderator.list",
-          description = "Admin only command to list which roles are considered to be moderators.",
-          acceptFrom = IncomingScope.CHANNEL,
-          perms = {AbstractPermission.ADMINISTRATOR})
+  @CommandHandler(
+      commandName = "moderator.list",
+      description = "Admin only command to list which roles are considered to be moderators.",
+      acceptFrom = IncomingScope.CHANNEL,
+      perms = {AbstractPermission.ADMINISTRATOR})
   @Usages({
-          @Usage(usage = "", description = "list all the roles which are considered to be moderators.")
+    @Usage(usage = "", description = "list all the roles which are considered to be moderators.")
   })
   public DiscordResponse listModerator() {
     var guildId = Discord.getGuildId(request);
-    return DiscordResponse.of("Moderators: \n%s", String.join("\n", moderator.getModeratorRoleForGuild(guildId)));
+    return DiscordResponse.of(
+        "Moderators: \n%s", String.join("\n", moderator.getModeratorRoleForGuild(guildId)));
   }
 }

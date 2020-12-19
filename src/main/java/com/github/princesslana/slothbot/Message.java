@@ -3,7 +3,6 @@ package com.github.princesslana.slothbot;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
@@ -22,12 +21,12 @@ public class Message {
 
   public Set<String> getRoles() {
     return Optional.ofNullable(payload.get("member"))
-            .map(JsonElement::getAsJsonObject)
-            .map(inner -> inner.get("roles"))
-            .map(JsonElement::getAsJsonArray)
-            .map(JsonArray::iterator)
-            .map(this::iteratorToSet)
-            .orElseGet(HashSet::new);
+        .map(JsonElement::getAsJsonObject)
+        .map(inner -> inner.get("roles"))
+        .map(JsonElement::getAsJsonArray)
+        .map(JsonArray::iterator)
+        .map(this::iteratorToSet)
+        .orElseGet(HashSet::new);
   }
 
   private Set<String> iteratorToSet(Iterator<JsonElement> iterator) {
