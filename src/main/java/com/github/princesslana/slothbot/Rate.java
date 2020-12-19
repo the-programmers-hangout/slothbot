@@ -31,6 +31,10 @@ public class Rate {
     return getCountPerSecond() > r.getCountPerSecond();
   }
 
+  public double ratioTo(Rate r) {
+    return getCountPerSecond() / r.getCountPerSecond();
+  }
+
   public String humanize() {
     return String.format(
         "%d per %s",

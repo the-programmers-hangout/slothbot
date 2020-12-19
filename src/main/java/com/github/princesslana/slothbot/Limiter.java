@@ -49,7 +49,7 @@ public class Limiter {
         (int)
             Streams.mapWithIndex(
                     counter.getBuckets(channel.getId()).stream(),
-                    (b, idx) -> b.exceeds(limit) ? (30.0 - idx) / 10.0 : 0.0)
+                    (b, idx) -> b.exceeds(limit) ? b.ratioTo(limit) * (30.0 - idx) / 10.0 : 0.0)
                 .mapToDouble(n -> n)
                 .sum();
 
