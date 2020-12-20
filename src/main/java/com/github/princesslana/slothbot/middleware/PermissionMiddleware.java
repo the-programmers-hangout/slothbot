@@ -31,6 +31,6 @@ public class PermissionMiddleware implements BiFunction<Event, String, Boolean> 
     var roles = Discord.getRoles(json);
     return possibleGuildId
         .map(guildId -> roles.stream().anyMatch(role -> moderator.contains(guildId, role)))
-        .orElse(true);
+        .orElse(false);
   }
 }

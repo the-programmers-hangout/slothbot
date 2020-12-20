@@ -23,10 +23,8 @@ public class Moderator {
   }
 
   public void add(String guildId, String roleId) {
-    if (!guildToModeratorRoles.containsEntry(guildId, roleId)) {
-      guildToModeratorRoles.put(guildId, roleId);
-      save();
-    }
+    guildToModeratorRoles.put(guildId, roleId);
+    save();
   }
 
   public void remove(String guildId, String roleId) {
