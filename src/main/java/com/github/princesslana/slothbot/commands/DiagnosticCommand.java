@@ -5,9 +5,9 @@ import com.github.princesslana.slothbot.Limiter;
 import com.github.princesslana.slothbot.MessageCounter;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.collect.Lists;
-import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
 import disparse.discord.smalld.DiscordResponse;
+import disparse.parser.dispatch.IncomingScope;
 import disparse.parser.reflection.CommandHandler;
 import disparse.parser.reflection.Flag;
 import disparse.parser.reflection.ParsedEntity;
@@ -44,8 +44,8 @@ public class DiagnosticCommand {
 
   @CommandHandler(
       commandName = "buckets",
-      perms = {AbstractPermission.ADMINISTRATOR},
-      description = "View the current bucket counts for the current or specified channel.")
+      description = "View the current bucket counts for the current or specified channel.",
+      acceptFrom = IncomingScope.CHANNEL)
   @Usages({
     @Usage(usage = "", description = "View the current bucket counts for the current channel"),
     @Usage(

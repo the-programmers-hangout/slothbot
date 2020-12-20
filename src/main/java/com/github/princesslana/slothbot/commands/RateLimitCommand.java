@@ -5,9 +5,9 @@ import com.github.princesslana.slothbot.Limiter;
 import com.github.princesslana.slothbot.Rate;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.Preconditions;
-import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
 import disparse.discord.smalld.DiscordResponse;
+import disparse.parser.dispatch.IncomingScope;
 import disparse.parser.reflection.CommandHandler;
 import disparse.parser.reflection.Flag;
 import disparse.parser.reflection.ParsedEntity;
@@ -39,8 +39,8 @@ public class RateLimitCommand {
 
   @CommandHandler(
       commandName = "ratelimit",
-      perms = {AbstractPermission.ADMINISTRATOR},
-      description = "Apply a rate limit to the current or specified channel.")
+      description = "Apply a rate limit to the current or specified channel.",
+      acceptFrom = IncomingScope.CHANNEL)
   @Usages({
     @Usage(
         usage = "120",
