@@ -33,7 +33,7 @@ public class ModeratorCommand {
     var guildId = Discord.getGuildId(request);
     var args = request.getArgs();
     args.forEach(role -> moderator.add(guildId, role));
-    return DiscordResponse.of("Successfully added %d roles", args.size());
+    return DiscordResponse.of("%s Successfully added %d roles", Emoji.CHECKMARK, args.size());
   }
 
   @CommandHandler(
@@ -64,6 +64,6 @@ public class ModeratorCommand {
   })
   public DiscordResponse listModerator() {
     var guildId = Discord.getGuildId(request);
-    return DiscordResponse.of("Moderators: \n%s", String.join("\n", moderator.get(guildId)));
+    return DiscordResponse.of("Moderator roles: \n%s", String.join("\n", moderator.get(guildId)));
   }
 }

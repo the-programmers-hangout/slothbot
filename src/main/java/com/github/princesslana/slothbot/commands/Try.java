@@ -8,7 +8,7 @@ public class Try {
   private Try() {}
 
   private static DiscordResponse error(String msg) {
-    return DiscordResponse.of(String.format("%s %s", Emoji.ERROR, msg));
+    return DiscordResponse.of("%s %s", Emoji.ERROR, msg);
   }
 
   public static DiscordResponse run(Callable<DiscordResponse> f) {
