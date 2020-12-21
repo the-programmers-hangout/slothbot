@@ -67,8 +67,7 @@ public class RateLimitCommand {
           if (rateLimit == 0) {
             limiter.clear(channel);
             return DiscordResponse.of(
-                String.format(
-                    "%s Rate limit for %s cleared", Emoji.CHECKMARK, channel.getMention()));
+                "%s Rate limit for %s cleared", Emoji.CHECKMARK, channel.getMention());
           }
 
           var rate = Rate.perMinute(rateLimit);
@@ -76,9 +75,8 @@ public class RateLimitCommand {
           limiter.set(channel, rate);
 
           return DiscordResponse.of(
-              String.format(
-                  "%s Rate limit of %s set for %s",
-                  Emoji.CHECKMARK, rate.humanize(), channel.getMention()));
+              "%s Rate limit of %s set for %s",
+              Emoji.CHECKMARK, rate.humanize(), channel.getMention());
         });
   }
 }
