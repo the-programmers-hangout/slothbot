@@ -4,6 +4,7 @@ import com.github.princesslana.slothbot.Channel;
 import com.github.princesslana.slothbot.Limiter;
 import com.github.princesslana.slothbot.MessageCounter;
 import com.github.princesslana.smalld.SmallD;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import disparse.discord.smalld.DiscordRequest;
 import disparse.discord.smalld.DiscordResponse;
@@ -55,6 +56,9 @@ public class DiagnosticCommand {
   public DiscordResponse buckets(Options opts) {
     return Try.run(
         () -> {
+          Preconditions.checkArgument(
+              request.getArgs().isEmpty(), "This command does not take any arguments");
+
           var channel = Channel.fromRequest(smalld, request, opts.channelId);
 
           var limit = limiter.get(channel);
