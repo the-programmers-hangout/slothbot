@@ -4,6 +4,7 @@ import com.github.princesslana.jsonf.GsonF;
 import com.github.princesslana.slothbot.Config;
 import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Moderator;
+import com.github.princesslana.slothbot.Role;
 import disparse.discord.smalld.Event;
 import disparse.discord.smalld.permissions.Permission;
 import disparse.discord.smalld.permissions.PermissionUtils;
@@ -31,7 +32,8 @@ public class PermissionMiddleware implements BiFunction<Event, String, Boolean> 
     var possibleGuildId = Discord.getGuild(json);
     var roles = Discord.getRoles(json);
     return possibleGuildId
-        .map(guildId -> roles.stream().anyMatch(role -> moderator.contains(guildId, role)))
+        .map(
+            guildId -> roles.stream().anyMatch(role -> moderator.contains(new Role(guildId, role))))
         .orElse(false);
   }
 }

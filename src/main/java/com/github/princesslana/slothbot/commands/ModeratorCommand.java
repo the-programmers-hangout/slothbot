@@ -2,18 +2,26 @@ package com.github.princesslana.slothbot.commands;
 
 import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Moderator;
+import com.github.princesslana.slothbot.Role;
+import com.github.princesslana.smalld.SmallD;
+import com.google.common.base.Preconditions;
 import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
 import disparse.discord.smalld.DiscordResponse;
 import disparse.parser.dispatch.IncomingScope;
-import disparse.parser.reflection.*;
+import disparse.parser.reflection.CommandHandler;
+import disparse.parser.reflection.Usage;
+import disparse.parser.reflection.Usages;
+import java.util.stream.Collectors;
 
 public class ModeratorCommand {
 
+  private final SmallD smalld;
   private final DiscordRequest request;
   private final Moderator moderator;
 
-  public ModeratorCommand(DiscordRequest request, Moderator moderator) {
+  public ModeratorCommand(SmallD smalld, DiscordRequest request, Moderator moderator) {
+    this.smalld = smalld;
     this.request = request;
     this.moderator = moderator;
   }
@@ -23,17 +31,19 @@ public class ModeratorCommand {
       description = "Admin only command to add which roles are considered to be moderators.",
       acceptFrom = IncomingScope.CHANNEL,
       perms = {AbstractPermission.ADMINISTRATOR})
-  @Usages({
-    @Usage(usage = "718166777405767771", description = "add this roleId as a moderator"),
-    @Usage(
-        usage = "718166777405767771 424095817939419146",
-        description = "add all listed roleIds as a moderator")
-  })
+  @Usages({@Usage(usage = "718166777405767771", description = "add this roleId as a moderator")})
   public DiscordResponse addModerator() {
-    var guildId = Discord.getGuildId(request);
-    var args = request.getArgs();
-    args.forEach(role -> moderator.add(guildId, role));
-    return DiscordResponse.of("%s Successfully added %d roles", Emoji.CHECKMARK, args.size());
+    return Try.run(
+        () -> {
+          Preconditions.checkArgument(request.getArgs().size() == 1, "A single role must be given");
+
+          var role = Role.fromRequest(smalld, request, request.getArgs().get(0));
+
+          moderator.add(role);
+
+          return DiscordResponse.of(
+              "%s Successfully added %s as moderator role", Emoji.CHECKMARK, role.getMention());
+        });
   }
 
   @CommandHandler(
@@ -41,17 +51,24 @@ public class ModeratorCommand {
       description = "Admin only command to remove which roles are considered to be moderators.",
       acceptFrom = IncomingScope.CHANNEL,
       perms = {AbstractPermission.ADMINISTRATOR})
-  @Usages({
-    @Usage(usage = "718166777405767771", description = "remove this roleId as a moderator"),
-    @Usage(
-        usage = "718166777405767771 424095817939419146",
-        description = "remove all listed roleIds as a moderator")
-  })
+  @Usages({@Usage(usage = "718166777405767771", description = "remove this roleId as a moderator")})
   public DiscordResponse removeModerator() {
-    var guildId = Discord.getGuildId(request);
-    var args = request.getArgs();
-    args.forEach(role -> moderator.remove(guildId, role));
-    return DiscordResponse.of("Successfully removed %d roles", args.size());
+    return Try.run(
+        () -> {
+          Preconditions.checkArgument(request.getArgs().size() == 1, "A single role must be given");
+          var guildId = Discord.getGuildId(request);
+          var userInput = request.getArgs().get(0);
+
+          var role = new Role(guildId, userInput);
+          if (!moderator.contains(role)) {
+            role = Role.fromRequest(smalld, request, userInput);
+          }
+
+          moderator.remove(role);
+
+          return DiscordResponse.of(
+              "Successfully removed %s from moderator roles", role.getMention());
+        });
   }
 
   @CommandHandler(
@@ -64,6 +81,12 @@ public class ModeratorCommand {
   })
   public DiscordResponse listModerator() {
     var guildId = Discord.getGuildId(request);
-    return DiscordResponse.of("Moderator roles: \n%s", String.join("\n", moderator.get(guildId)));
+
+    var roles =
+        moderator.get(guildId).stream()
+            .map(r -> String.format("%s (%s)", r.getMention(), r.getRoleId()))
+            .collect(Collectors.joining("\n"));
+
+    return DiscordResponse.of("Moderator roles: \n%s", roles);
   }
 }

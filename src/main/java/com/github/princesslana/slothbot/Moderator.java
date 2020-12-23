@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,22 +24,24 @@ public class Moderator {
     this.savePath = savePath;
   }
 
-  public void add(String guildId, String roleId) {
-    guildToModeratorRoles.put(guildId, roleId);
+  public void add(Role role) {
+    guildToModeratorRoles.put(role.getGuildId(), role.getRoleId());
     save();
   }
 
-  public void remove(String guildId, String roleId) {
-    guildToModeratorRoles.remove(guildId, roleId);
+  public void remove(Role role) {
+    guildToModeratorRoles.remove(role.getGuildId(), role.getRoleId());
     save();
   }
 
-  public boolean contains(String guildId, String roleId) {
-    return guildToModeratorRoles.containsEntry(guildId, roleId);
+  public boolean contains(Role role) {
+    return guildToModeratorRoles.containsEntry(role.getGuildId(), role.getRoleId());
   }
 
-  public Set<String> get(String guildId) {
-    return guildToModeratorRoles.get(guildId);
+  public Set<Role> get(String guildId) {
+    return guildToModeratorRoles.get(guildId).stream()
+        .map(rid -> new Role(guildId, rid))
+        .collect(Collectors.toSet());
   }
 
   private void save() {
