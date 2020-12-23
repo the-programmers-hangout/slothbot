@@ -2,9 +2,10 @@ package com.github.princesslana.slothbot;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
+import com.github.princesslana.jsonf.JsonF;
 import com.google.common.base.Preconditions;
 import java.time.Duration;
+import java.util.Optional;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 public class Rate {
@@ -45,12 +46,11 @@ public class Rate {
     return Json.object().add("count", count).add("seconds", duration.toSeconds());
   }
 
-  public static Rate fromJson(JsonValue json) {
-    return fromJson(json.asObject());
-  }
+  public static Optional<Rate> fromJson(JsonF json) {
+    var count = json.get("count").asNumber().map(Number::longValue);
+    var duration = json.get("seconds").asNumber().map(Number::longValue).map(Duration::ofSeconds);
 
-  public static Rate fromJson(JsonObject json) {
-    return new Rate(json.getInt("count", -1), Duration.ofSeconds(json.getInt("seconds", -1)));
+    return Optionals.map(count, duration, Rate::new);
   }
 
   public static Rate per(Duration duration, long count) {

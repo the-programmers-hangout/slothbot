@@ -2,13 +2,15 @@ package com.github.princesslana.slothbot;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
+import com.github.princesslana.jsonf.JsonF;
+import com.github.princesslana.jsonf.MinimalF;
 import com.github.princesslana.smalld.HttpException;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import disparse.discord.smalld.DiscordRequest;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 public class Channel {
@@ -38,8 +40,8 @@ public class Channel {
 
   public boolean exists(SmallD smalld) {
     try {
-      var json = Json.parse(smalld.get(String.format("/channels/%s", channelId))).asObject();
-      return json.getString("guild_id", "").equals(guildId);
+      var json = MinimalF.parse(smalld.get(String.format("/channels/%s", channelId)));
+      return json.get("guild_id").asString().map(g -> g.equals(guildId)).orElse(false);
     } catch (HttpException e) {
       if (e.getCode() == 404) {
         return false;
@@ -77,12 +79,11 @@ public class Channel {
         .toString();
   }
 
-  public static Channel fromJson(JsonValue json) {
-    return fromJson(json.asObject());
-  }
+  public static Optional<Channel> fromJson(JsonF json) {
+    var guildId = json.get("guildId").asString();
+    var channelId = json.get("channelId").asString();
 
-  public static Channel fromJson(JsonObject json) {
-    return new Channel(json.getString("guildId", null), json.getString("channelId", null));
+    return Optionals.map(guildId, channelId, Channel::new);
   }
 
   public static Channel fromRequest(SmallD smalld, DiscordRequest req, String userInput) {
