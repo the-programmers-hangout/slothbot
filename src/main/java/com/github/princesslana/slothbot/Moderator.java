@@ -7,13 +7,14 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.HashMultimap;
 import com.google.common.io.MoreFiles;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Moderator {
-  private static final Logger LOG = LogManager.getLogger(Limiter.class);
+  private static final Logger LOG = LogManager.getLogger(Moderator.class);
 
   private final HashMultimap<String, String> guildToModeratorRoles = HashMultimap.create();
   private final Path savePath;
@@ -76,6 +77,8 @@ public class Moderator {
       }
 
       LOG.atDebug().log("Loaded {} guilds' mappings from {}", arr.size(), savePath);
+    } catch (NoSuchFileException e) {
+      LOG.atInfo().log("No limits file at {}. One will be created if needed.", savePath);
     } catch (IOException e) {
       LOG.atWarn().withThrowable(e).log("Error loading guild mappings from {}", savePath);
     }
