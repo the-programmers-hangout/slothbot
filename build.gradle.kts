@@ -15,6 +15,7 @@ repositories {
 dependencies {
     implementation("com.eclipsesource.minimal-json:minimal-json:0.9.5")
     implementation("com.github.boscojared.disparse:disparse-smalld:master-SNAPSHOT")
+    implementation("com.github.princesslana:jsonf:0.1.0")
     implementation("com.github.princesslana:smalld:0.2.6")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.google.guava:guava:30.0-jre")

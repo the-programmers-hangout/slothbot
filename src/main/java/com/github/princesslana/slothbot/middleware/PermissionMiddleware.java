@@ -1,9 +1,9 @@
 package com.github.princesslana.slothbot.middleware;
 
+import com.github.princesslana.jsonf.GsonF;
 import com.github.princesslana.slothbot.Config;
 import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Moderator;
-import com.google.gson.JsonObject;
 import disparse.discord.smalld.Event;
 import disparse.discord.smalld.permissions.Permission;
 import disparse.discord.smalld.permissions.PermissionUtils;
@@ -25,7 +25,8 @@ public class PermissionMiddleware implements BiFunction<Event, String, Boolean> 
     if (PermissionUtils.computeAllPerms(event).contains(Permission.ADMINISTRATOR)) {
       return true;
     }
-    JsonObject json = event.getJson().getAsJsonObject("d");
+
+    var json = GsonF.from(event.getJson()).get("d");
 
     var possibleGuildId = Discord.getGuild(json);
     var roles = Discord.getRoles(json);
