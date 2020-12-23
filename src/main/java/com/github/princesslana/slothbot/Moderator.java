@@ -3,6 +3,7 @@ package com.github.princesslana.slothbot;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.WriterConfig;
+import com.github.princesslana.jsonf.MinimalF;
 import com.google.common.base.Charsets;
 import com.google.common.collect.HashMultimap;
 import com.google.common.io.MoreFiles;
@@ -68,18 +69,18 @@ public class Moderator {
 
   public void load() {
     try {
-      var arr = Json.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read()).asArray();
+      var arr = MinimalF.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read());
 
       for (var json : arr) {
-        var obj = json.asObject();
-        var guildId = obj.get("guild").asString();
-        var rolesArray = obj.get("roles").asArray();
-        for (var role : rolesArray) {
-          guildToModeratorRoles.put(guildId, role.asString());
+        var guildId = json.get("guild").asString();
+
+        for (var role : json.get("roles")) {
+          Optionals.ifPresent(guildId, role.asString(), guildToModeratorRoles::put);
         }
       }
 
-      LOG.atDebug().log("Loaded {} guilds' mappings from {}", arr.size(), savePath);
+      LOG.atDebug().log(
+          "Loaded {} guilds' mappings from {}", guildToModeratorRoles.size(), savePath);
     } catch (NoSuchFileException e) {
       LOG.atInfo().log("No limits file at {}. One will be created if needed.", savePath);
     } catch (IOException e) {

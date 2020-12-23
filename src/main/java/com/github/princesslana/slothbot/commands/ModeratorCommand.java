@@ -29,8 +29,8 @@ public class ModeratorCommand {
       commandName = "moderator.add",
       description = "Admin only command to add which roles are considered to be moderators.",
       acceptFrom = IncomingScope.CHANNEL,
-      perms = {AbstractPermission.ADMINISTRATOR})
-  @Usages({@Usage(usage = "718166777405767771", description = "add this roleId as a moderator")})
+      perms = AbstractPermission.ADMINISTRATOR)
+  @Usages(@Usage(usage = "718166777405767771", description = "add this roleId as a moderator"))
   public DiscordResponse addModerator() {
     return Try.run(
         () -> {
@@ -49,8 +49,8 @@ public class ModeratorCommand {
       commandName = "moderator.remove",
       description = "Admin only command to remove which roles are considered to be moderators.",
       acceptFrom = IncomingScope.CHANNEL,
-      perms = {AbstractPermission.ADMINISTRATOR})
-  @Usages({@Usage(usage = "718166777405767771", description = "remove this roleId as a moderator")})
+      perms = AbstractPermission.ADMINISTRATOR)
+  @Usages(@Usage(usage = "718166777405767771", description = "remove this roleId as a moderator"))
   public DiscordResponse removeModerator() {
     return Try.run(
         () -> {

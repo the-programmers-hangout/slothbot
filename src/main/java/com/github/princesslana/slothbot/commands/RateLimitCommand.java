@@ -53,7 +53,7 @@ public class RateLimitCommand {
         usage = "-c <channel_id> 0",
         description = "Clear the rate limit on the channel identified by channel_id")
   })
-  public DiscordResponse count(Options opts) {
+  public DiscordResponse rateLimit(Options opts) {
     return Try.run(
         () -> {
           Preconditions.checkArgument(
