@@ -12,7 +12,6 @@ import disparse.parser.dispatch.IncomingScope;
 import disparse.parser.reflection.CommandHandler;
 import disparse.parser.reflection.Usage;
 import disparse.parser.reflection.Usages;
-import java.util.stream.Collectors;
 
 public class ModeratorCommand {
 
@@ -69,24 +68,5 @@ public class ModeratorCommand {
           return DiscordResponse.of(
               "Successfully removed %s from moderator roles", role.getMention());
         });
-  }
-
-  @CommandHandler(
-      commandName = "moderator.list",
-      description = "Admin only command to list which roles are considered to be moderators.",
-      acceptFrom = IncomingScope.CHANNEL,
-      perms = {AbstractPermission.ADMINISTRATOR})
-  @Usages({
-    @Usage(usage = "", description = "list all the roles which are considered to be moderators.")
-  })
-  public DiscordResponse listModerator() {
-    var guildId = Discord.getGuildId(request);
-
-    var roles =
-        moderator.get(guildId).stream()
-            .map(r -> String.format("%s (%s)", r.getMention(), r.getRoleId()))
-            .collect(Collectors.joining("\n"));
-
-    return DiscordResponse.of("Moderator roles: \n%s", roles);
   }
 }

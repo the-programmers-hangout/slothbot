@@ -24,6 +24,10 @@ public class Channel {
     return channelId;
   }
 
+  public String getGuildId() {
+    return guildId;
+  }
+
   public String getMention() {
     return String.format("<#%s>", channelId);
   }
