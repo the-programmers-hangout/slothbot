@@ -4,11 +4,13 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.WriterConfig;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.common.io.MoreFiles;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,6 +87,10 @@ public class Limiter {
 
   public Optional<Rate> get(Channel channel) {
     return Optional.ofNullable(limits.get(channel));
+  }
+
+  public Map<Channel, Rate> getForGuild(String guildId) {
+    return Maps.filterKeys(limits, c -> c.getGuildId().equals(guildId));
   }
 
   private void save() {
