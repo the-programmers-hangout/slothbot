@@ -7,6 +7,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Streams;
 import com.google.common.io.MoreFiles;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -114,6 +115,8 @@ public class Limiter {
       }
 
       LOG.atDebug().log("Loaded {} limits from {}", arr.size(), savePath);
+    } catch (NoSuchFileException e) {
+      LOG.atInfo().log("No limits file at {}. One will be created if needed.", savePath);
     } catch (IOException e) {
       LOG.atWarn().withThrowable(e).log("Error loading limits from {}", savePath);
     }
