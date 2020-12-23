@@ -3,13 +3,12 @@ package com.github.princesslana.slothbot.commands;
 import com.eclipsesource.json.Json;
 import com.github.princesslana.slothbot.Config;
 import com.github.princesslana.slothbot.Discord;
+import com.github.princesslana.slothbot.Embed;
 import com.github.princesslana.slothbot.Self;
 import com.github.princesslana.smalld.SmallD;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import disparse.discord.smalld.DiscordResponse;
 import disparse.parser.reflection.CommandHandler;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -51,37 +50,22 @@ public class AboutCommand {
   }
 
   private JsonObject getAboutEmbed() {
-    var thumbnail = new JsonObject();
-    thumbnail.addProperty("url", self.getAvatarUrl());
+    var embed = new Embed();
+    embed.setTitle("slothbot");
+    embed.setDescription("A Discord bot to auto manage slow mode on channels");
+    embed.setThumbanil(self.getAvatarUrl());
 
-    var prefix = inlineField("Prefix", Config.getPrefix());
-    var source = inlineField("Source", githubLink("the-programmers-hangout", "slothbot", "GitHub"));
+    embed.addInlineField("Prefix", Config.getPrefix());
+    embed.addInlineField("Source", githubLink("the-programmers-hangout", "slothbot", "GitHub"));
+    embed.addInlineField(
+        "Uptime", DurationFormatUtils.formatDurationWords(self.getUptime().toMillis(), true, true));
 
-    var uptime =
-        inlineField(
-            "Uptime",
-            DurationFormatUtils.formatDurationWords(self.getUptime().toMillis(), true, true));
+    embed.addInlineField(
+        "Stack",
+        Stream.of(githubLink("princesslana", "smalld"), githubLink("BoscoJared", "disparse"))
+            .collect(Collectors.joining("\n")));
 
-    var stack =
-        inlineField(
-            "Stack",
-            Stream.of(githubLink("princesslana", "smalld"), githubLink("BoscoJared", "disparse"))
-                .collect(Collectors.joining("\n")));
-
-    var embed = new JsonObject();
-    embed.addProperty("title", "slothbot");
-    embed.addProperty("description", "A Discord bot to auto manage slow mode on channels");
-    embed.add("thumbnail", thumbnail);
-    embed.add("fields", fields(prefix, source, uptime, stack));
-    return embed;
-  }
-
-  private static JsonObject inlineField(String name, String value) {
-    var json = new JsonObject();
-    json.addProperty("name", name);
-    json.addProperty("value", value);
-    json.addProperty("inline", true);
-    return json;
+    return embed.toGson();
   }
 
   private static String githubLink(String org, String repo) {
@@ -90,11 +74,5 @@ public class AboutCommand {
 
   private static String githubLink(String org, String repo, String text) {
     return String.format("[%s](https://github.com/%s/%s)", text, org, repo);
-  }
-
-  private static JsonArray fields(JsonObject... fields) {
-    var json = new JsonArray();
-    Arrays.stream(fields).forEach(json::add);
-    return json;
   }
 }
