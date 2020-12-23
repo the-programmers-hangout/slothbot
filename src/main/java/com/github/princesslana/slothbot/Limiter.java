@@ -115,7 +115,7 @@ public class Limiter {
 
       for (var json : arr) {
         var channel = Channel.fromJson(json.get("channel"));
-        var rate = Rate.fromJson(json.get("rate"));
+        var rate = Rate.fromJson(json.get("limit"));
 
         Optionals.ifPresent(channel, rate, limits::put);
       }
