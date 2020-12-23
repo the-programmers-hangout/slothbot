@@ -10,7 +10,6 @@ import com.github.princesslana.slothbot.Self;
 import com.github.princesslana.smalld.SmallD;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import disparse.discord.AbstractPermission;
 import disparse.discord.smalld.DiscordRequest;
 import disparse.discord.smalld.DiscordResponse;
 import disparse.parser.dispatch.IncomingScope;
@@ -38,8 +37,7 @@ public class ConfigurationCommand {
   @CommandHandler(
       commandName = "configuration",
       description = "Display slothbot's configuraiton",
-      acceptFrom = IncomingScope.CHANNEL,
-      perms = AbstractPermission.ADMINISTRATOR)
+      acceptFrom = IncomingScope.CHANNEL)
   public DiscordResponse configuration() {
     return DiscordResponse.of(getConfigurationEmbed());
   }
