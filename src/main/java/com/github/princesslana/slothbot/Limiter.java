@@ -2,7 +2,7 @@ package com.github.princesslana.slothbot;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.WriterConfig;
-import com.github.princesslana.jsonf.MinimalF;
+import com.github.princesslana.jsonf.JsonF;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
@@ -111,7 +111,7 @@ public class Limiter {
 
   public void load() {
     try {
-      var arr = MinimalF.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read());
+      var arr = JsonF.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read());
 
       for (var json : arr) {
         var channel = Channel.fromJson(json.get("channel"));

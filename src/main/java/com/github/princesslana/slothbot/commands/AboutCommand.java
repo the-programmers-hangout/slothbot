@@ -1,9 +1,10 @@
 package com.github.princesslana.slothbot.commands;
 
-import com.eclipsesource.json.Json;
+import com.github.princesslana.jsonf.JsonF;
 import com.github.princesslana.slothbot.Config;
 import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Embed;
+import com.github.princesslana.slothbot.Optionals;
 import com.github.princesslana.slothbot.Self;
 import com.github.princesslana.smalld.SmallD;
 import com.google.gson.JsonObject;
@@ -26,22 +27,26 @@ public class AboutCommand {
   public static void attachMentionListener(SmallD smalld, Self self) {
     smalld.onGatewayPayload(
         payload -> {
-          var json = Json.parse(payload).asObject();
-
           var cmd = new AboutCommand(smalld, self);
-          Discord.ifEvent(json, "MESSAGE_CREATE", cmd::onMessageCreate);
+          Discord.ifEvent(JsonF.parse(payload), "MESSAGE_CREATE", cmd::onMessageCreate);
         });
   }
 
-  private void onMessageCreate(com.eclipsesource.json.JsonObject d) {
-    if (d.getString("content", "").strip().equals(self.getMention())) {
-      var channelId = d.getString("channel_id", "");
+  private void onMessageCreate(JsonF d) {
+    var content = d.get("content").asString().map(String::strip);
+    var channelId = d.get("channel_id").asString();
 
-      var message = new JsonObject();
-      message.add("embed", getAboutEmbed());
+    Optionals.ifPresent(
+        content,
+        channelId,
+        (con, cid) -> {
+          if (con.equals(self.getMention())) {
+            var message = new JsonObject();
+            message.add("embed", getAboutEmbed());
 
-      smalld.post(String.format("/channels/%s/messages", channelId), message.toString());
-    }
+            smalld.post(String.format("/channels/%s/messages", cid), message.toString());
+          }
+        });
   }
 
   @CommandHandler(commandName = "about", description = "Display information about slothbot")

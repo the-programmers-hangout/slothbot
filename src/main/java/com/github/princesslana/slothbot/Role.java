@@ -1,6 +1,6 @@
 package com.github.princesslana.slothbot;
 
-import com.github.princesslana.jsonf.MinimalF;
+import com.github.princesslana.jsonf.JsonF;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -27,11 +27,11 @@ public class Role {
   }
 
   public String getMention() {
-    return String.format("<@&%S>", roleId);
+    return String.format("<@&%s>", roleId);
   }
 
   public boolean exists(SmallD smalld) {
-    var json = MinimalF.parse(smalld.get(String.format("/guilds/%s/roles", guildId)));
+    var json = JsonF.parse(smalld.get(String.format("/guilds/%s/roles", guildId)));
 
     return json.flatMap(j -> j.get("id").asString()).anyMatch(Predicate.isEqual(roleId));
   }

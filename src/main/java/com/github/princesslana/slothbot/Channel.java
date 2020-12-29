@@ -3,7 +3,6 @@ package com.github.princesslana.slothbot;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.github.princesslana.jsonf.JsonF;
-import com.github.princesslana.jsonf.MinimalF;
 import com.github.princesslana.smalld.HttpException;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.MoreObjects;
@@ -40,7 +39,7 @@ public class Channel {
 
   public boolean exists(SmallD smalld) {
     try {
-      var json = MinimalF.parse(smalld.get(String.format("/channels/%s", channelId)));
+      var json = JsonF.parse(smalld.get(String.format("/channels/%s", channelId)));
       return json.get("guild_id").asString().map(g -> g.equals(guildId)).orElse(false);
     } catch (HttpException e) {
       if (e.getCode() == 404) {

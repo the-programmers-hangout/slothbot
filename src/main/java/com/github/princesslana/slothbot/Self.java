@@ -1,7 +1,7 @@
 package com.github.princesslana.slothbot;
 
 import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
+import com.github.princesslana.jsonf.JsonF;
 import com.github.princesslana.smalld.SmallD;
 import java.time.Duration;
 import java.time.Instant;
@@ -12,7 +12,7 @@ public class Self {
 
   private static Instant up = Instant.now();
 
-  private JsonObject user;
+  private JsonF user;
 
   public Self(SmallD smalld) {
     smalld.onGatewayPayload(this::onGatewayPayload);
@@ -23,11 +23,11 @@ public class Self {
   }
 
   private String getDiscriminator() {
-    return user.getString("discriminator", "");
+    return user.get("discriminator").asString().orElseThrow(IllegalStateException::new);
   }
 
   private String getUserId() {
-    return user.getString("id", "");
+    return user.get("id").asString().orElseThrow(IllegalStateException::new);
   }
 
   public String getMention() {
@@ -35,21 +35,21 @@ public class Self {
   }
 
   public String getAvatarUrl() {
-    var hash = user.get("avatar");
-
-    return hash.isNull()
-        ? String.format(
-            "%s/embed/avatars/%d.png", DISCORD_CDN, Integer.parseInt(getDiscriminator()) % 5)
-        : String.format("%s/avatars/%s/%s.png", DISCORD_CDN, getUserId(), hash.asString());
+    return user.get("avatar")
+        .asString()
+        .map(hsh -> String.format("%s/avatars/%s/%s.png", DISCORD_CDN, getUserId(), hsh))
+        .orElse(
+            String.format(
+                "%s/embed/avatars/%d.png", DISCORD_CDN, Integer.parseInt(getDiscriminator()) % 5));
   }
 
   private void onGatewayPayload(String payload) {
     var json = Json.parse(payload).asObject();
 
-    Discord.ifEvent(json, "READY", this::onReady);
+    Discord.ifEvent(JsonF.parse(payload), "READY", this::onReady);
   }
 
-  private void onReady(JsonObject d) {
-    user = d.get("user").asObject();
+  private void onReady(JsonF d) {
+    user = d.get("user");
   }
 }

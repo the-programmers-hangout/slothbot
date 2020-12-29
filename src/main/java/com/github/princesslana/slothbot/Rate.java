@@ -47,8 +47,8 @@ public class Rate {
   }
 
   public static Optional<Rate> fromJson(JsonF json) {
-    var count = json.get("count").asNumber().map(Number::longValue);
-    var duration = json.get("seconds").asNumber().map(Number::longValue).map(Duration::ofSeconds);
+    var count = json.get("count").asLong();
+    var duration = json.get("seconds").asLong().map(Duration::ofSeconds);
 
     return Optionals.map(count, duration, Rate::new);
   }

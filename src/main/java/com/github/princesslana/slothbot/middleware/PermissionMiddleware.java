@@ -1,6 +1,6 @@
 package com.github.princesslana.slothbot.middleware;
 
-import com.github.princesslana.jsonf.GsonF;
+import com.github.princesslana.jsonf.JsonF;
 import com.github.princesslana.slothbot.Config;
 import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Moderator;
@@ -27,7 +27,7 @@ public class PermissionMiddleware implements BiFunction<Event, String, Boolean> 
       return true;
     }
 
-    var json = GsonF.from(event.getJson()).get("d");
+    var json = JsonF.from(event.getJson()).get("d");
 
     var possibleGuildId = Discord.getGuild(json);
     var roles = Discord.getRoles(json);

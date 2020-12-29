@@ -3,7 +3,7 @@ package com.github.princesslana.slothbot;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.WriterConfig;
-import com.github.princesslana.jsonf.MinimalF;
+import com.github.princesslana.jsonf.JsonF;
 import com.google.common.base.Charsets;
 import com.google.common.collect.HashMultimap;
 import com.google.common.io.MoreFiles;
@@ -69,7 +69,7 @@ public class Moderator {
 
   public void load() {
     try {
-      var arr = MinimalF.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read());
+      var arr = JsonF.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read());
 
       for (var json : arr) {
         var guildId = json.get("guild").asString();

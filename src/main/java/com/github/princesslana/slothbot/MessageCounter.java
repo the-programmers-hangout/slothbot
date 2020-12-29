@@ -1,7 +1,6 @@
 package com.github.princesslana.slothbot;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
+import com.github.princesslana.jsonf.JsonF;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,17 +33,11 @@ public class MessageCounter {
   }
 
   private void onGatewayPayload(String payload) {
-    var json = Json.parse(payload).asObject();
-
-    Discord.ifEvent(json, "MESSAGE_CREATE", this::onMessageCreate);
+    Discord.ifEvent(JsonF.parse(payload), "MESSAGE_CREATE", this::onMessageCreate);
   }
 
-  private void onMessageCreate(JsonObject d) {
-    var channelId = d.getString("channel_id", null);
-
-    if (channelId != null) {
-      currentBucket.get().increment(channelId);
-    }
+  private void onMessageCreate(JsonF d) {
+    d.get("channel_id").asString().ifPresent(currentBucket.get()::increment);
   }
 
   private void rotateBucket() {
