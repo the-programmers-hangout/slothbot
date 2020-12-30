@@ -40,7 +40,7 @@ public class AboutCommand {
         content,
         channelId,
         (con, cid) -> {
-          if (con.equals(self.getMention())) {
+          if (self.isMention(con)) {
             var message = new JsonObject();
             message.add("embed", getAboutEmbed());
 
