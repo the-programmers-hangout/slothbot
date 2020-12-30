@@ -30,8 +30,8 @@ public class Self {
     return user.get("id").asString().orElseThrow(IllegalStateException::new);
   }
 
-  public String getMention() {
-    return String.format("<@!%s>", getUserId());
+  public boolean isMention(String s) {
+    return s != null && s.replaceAll("[<>!@]", "").equals(getUserId());
   }
 
   public String getAvatarUrl() {
