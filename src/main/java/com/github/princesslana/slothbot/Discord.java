@@ -1,6 +1,5 @@
 package com.github.princesslana.slothbot;
 
-import com.eclipsesource.json.JsonObject;
 import com.github.princesslana.jsonf.JsonF;
 import disparse.discord.smalld.DiscordRequest;
 import java.util.Optional;
@@ -27,11 +26,9 @@ public class Discord {
     return json.get("member", "roles").flatMap(JsonF::asString).collect(Collectors.toSet());
   }
 
-  public static void ifEvent(JsonObject json, String evt, Consumer<JsonObject> f) {
-    var isEvent = json.getInt("op", -1) == 0 && json.getString("t", "").equals(evt);
-
-    if (isEvent) {
-      f.accept(json.get("d").asObject());
+  public static void ifEvent(JsonF json, String evt, Consumer<JsonF> f) {
+    if (json.get("op").isEqualTo(0) && json.get("t").isEqualTo(evt)) {
+      f.accept(json.get("d"));
     }
   }
 }
