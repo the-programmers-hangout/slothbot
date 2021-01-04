@@ -63,6 +63,12 @@ public class MessageCounter {
         .collect(ImmutableList.toImmutableList());
   }
 
+  public ImmutableMap<String, Long> getTotalCounts() {
+    return pastBuckets.get().stream()
+        .flatMap(b -> b.getAllCounts().entrySet().stream())
+        .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, Long::sum));
+  }
+
   public void start(SmallD smalld) {
     smalld.onGatewayPayload((p) -> CompletableFuture.runAsync(() -> onGatewayPayload(p), executor));
 
@@ -98,6 +104,10 @@ public class MessageCounter {
 
     public Long getCount(String channelId) {
       return counts.getOrDefault(channelId, 0L);
+    }
+
+    public ImmutableMap<String, Long> getAllCounts() {
+      return counts;
     }
   }
 }
