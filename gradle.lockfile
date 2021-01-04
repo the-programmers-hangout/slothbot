@@ -1,0 +1,35 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+com.eclipsesource.minimal-json:minimal-json:0.9.5=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.github.boscojared.disparse:disparse-core:master-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.github.boscojared.disparse:disparse-smalld:master-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.github.princesslana:jsonf:0.2.1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.github.princesslana:smalld:0.4.0=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.google.code.findbugs:jsr305:3.0.2=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.google.code.gson:gson:2.8.6=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.google.errorprone:error_prone_annotations:2.3.4=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.google.guava:failureaccess:1.0.1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.google.guava:guava:30.1-jre=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.google.j2objc:j2objc-annotations:1.3=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.squareup.okhttp3:okhttp:3.12.10=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.squareup.okio:okio:1.15.0=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+io.github.cdimascio:dotenv-java:2.2.0=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.apache.commons:commons-lang3:3.11=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.apache.logging.log4j:log4j-api:2.14.0=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.apache.logging.log4j:log4j-core:2.14.0=runtimeClasspath,testRuntimeClasspath
+org.apache.logging.log4j:log4j-slf4j18-impl:2.14.0=runtimeClasspath,testRuntimeClasspath
+org.apiguardian:apiguardian-api:1.1.0=testCompileClasspath,testRuntimeClasspath
+org.assertj:assertj-core:3.18.1=testCompileClasspath,testRuntimeClasspath
+org.checkerframework:checker-qual:3.5.0=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.javassist:javassist:3.21.0-GA=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.junit.jupiter:junit-jupiter-api:5.7.0=testCompileClasspath,testRuntimeClasspath
+org.junit.jupiter:junit-jupiter-engine:5.7.0=testRuntimeClasspath
+org.junit.platform:junit-platform-commons:1.7.0=testCompileClasspath,testRuntimeClasspath
+org.junit.platform:junit-platform-engine:1.7.0=testRuntimeClasspath
+org.junit:junit-bom:5.7.0=testCompileClasspath,testRuntimeClasspath
+org.opentest4j:opentest4j:1.2.0=testCompileClasspath,testRuntimeClasspath
+org.reflections:reflections:0.9.11=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.slf4j:slf4j-api:2.0.0-alpha1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+empty=annotationProcessor,shadow,testAnnotationProcessor
