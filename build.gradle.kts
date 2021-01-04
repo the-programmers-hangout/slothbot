@@ -12,22 +12,28 @@ repositories {
     maven("https://jitpack.io")
 }
 
-dependencies {
-    implementation("com.eclipsesource.minimal-json:minimal-json:0.9.5")
-    implementation("com.github.boscojared.disparse:disparse-smalld:master-SNAPSHOT")
-    implementation("com.github.princesslana:jsonf:0.2.1")
-    implementation("com.github.princesslana:smalld:0.2.6")
-    implementation("com.google.code.gson:gson:2.8.6")
-    implementation("com.google.guava:guava:30.0-jre")
-    implementation("io.github.cdimascio:dotenv-java:2.2.0")
-    implementation("org.apache.commons:commons-lang3:3.11")
-    implementation("org.apache.logging.log4j:log4j-api:2.14.0")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:2.14.0")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j18-impl:2.14.0")
+// To update dependencies: rm gradle.lockfile && ./gradlew dependencies --write-locks
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode.set(LockMode.STRICT)
+}
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
-    testImplementation("org.assertj:assertj-core:3.18.1")
+dependencies {
+    implementation("com.eclipsesource.minimal-json:minimal-json:latest.release")
+    implementation("com.github.boscojared.disparse:disparse-smalld:master-SNAPSHOT")
+    implementation("com.github.princesslana:jsonf:latest.release")
+    implementation("com.github.princesslana:smalld:latest.release")
+    implementation("com.google.code.gson:gson:latest.release")
+    implementation("com.google.guava:guava:latest.release")
+    implementation("io.github.cdimascio:dotenv-java:latest.release")
+    implementation("org.apache.commons:commons-lang3:latest.release")
+    implementation("org.apache.logging.log4j:log4j-api:latest.release")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:latest.release")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j18-impl:latest.release")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:latest.release")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:latest.release")
+    testImplementation("org.assertj:assertj-core:latest.release")
 }
 
 java {
