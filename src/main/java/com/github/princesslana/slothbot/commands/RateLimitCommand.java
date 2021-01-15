@@ -2,6 +2,7 @@ package com.github.princesslana.slothbot.commands;
 
 import com.github.princesslana.slothbot.Channel;
 import com.github.princesslana.slothbot.Limiter;
+import com.github.princesslana.slothbot.MessageCounter;
 import com.github.princesslana.slothbot.Rate;
 import com.github.princesslana.smalld.SmallD;
 import com.google.common.base.Preconditions;
@@ -19,11 +20,14 @@ public class RateLimitCommand {
   private final SmallD smalld;
   private final DiscordRequest request;
   private final Limiter limiter;
+  private final MessageCounter counter;
 
-  public RateLimitCommand(SmallD smalld, DiscordRequest request, Limiter limiter) {
+  public RateLimitCommand(
+      SmallD smalld, DiscordRequest request, Limiter limiter, MessageCounter counter) {
     this.smalld = smalld;
     this.request = request;
     this.limiter = limiter;
+    this.counter = counter;
   }
 
   @ParsedEntity
@@ -32,7 +36,7 @@ public class RateLimitCommand {
         shortName = 'c',
         longName = "channel",
         description =
-            "The id of the channel to rate limit. "
+            "The id or a mention of the channel. "
                 + "Defaults to the current channel if not provided.")
     public String channelId;
   }
@@ -77,6 +81,31 @@ public class RateLimitCommand {
           return DiscordResponse.of(
               "%s Rate limit of %s set for %s",
               Emoji.CHECKMARK, rate.humanize(), channel.getMention());
+        });
+  }
+
+  @CommandHandler(
+      commandName = "clear",
+      description = "Clear the current slowmode on the current or specified channel.",
+      acceptFrom = IncomingScope.CHANNEL)
+  @Usages({
+    @Usage(usage = "", description = "Clear the slowmode on the current channel"),
+    @Usage(
+        usage = "-c <channel_id>",
+        description = "Clear the slowmode on the channel identified by channel_id")
+  })
+  public DiscordResponse clear(Options opts) {
+    return Try.run(
+        () -> {
+          Preconditions.checkArgument(
+              request.getArgs().isEmpty(), "This command does not take any arguments");
+
+          var channel = Channel.fromRequest(smalld, request, opts.channelId);
+
+          counter.clearBuckets(channel);
+
+          return DiscordResponse.of(
+              "%s Slowmode cleared for %s", Emoji.CHECKMARK, channel.getMention());
         });
   }
 }

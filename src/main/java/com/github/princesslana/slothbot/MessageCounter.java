@@ -5,6 +5,7 @@ import com.github.princesslana.smalld.SmallD;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,11 +44,10 @@ public class MessageCounter {
   private void rotateBucket() {
     var bucket = currentBucket.getAndSet(new CountingBucket()).snapshot();
 
-    var rotated =
-        Stream.concat(Stream.of(bucket), pastBuckets.get().stream().limit(PAST_BUCKETS_SIZE - 1))
-            .collect(ImmutableList.toImmutableList());
-
-    pastBuckets.set(rotated);
+    pastBuckets.updateAndGet(
+        pbs ->
+            Stream.concat(Stream.of(bucket), pbs.stream().limit(PAST_BUCKETS_SIZE - 1))
+                .collect(ImmutableList.toImmutableList()));
   }
 
   public ImmutableList<Rate> getBuckets(Channel channel) {
@@ -67,6 +67,18 @@ public class MessageCounter {
     return pastBuckets.get().stream()
         .flatMap(b -> b.getAllCounts().entrySet().stream())
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, Long::sum));
+  }
+
+  public void clearBuckets(Channel channel) {
+    clearBuckets(channel.getId());
+  }
+
+  public void clearBuckets(String channelId) {
+    pastBuckets.updateAndGet(
+        pbs ->
+            pbs.stream()
+                .map(b -> b.clearCount(channelId))
+                .collect(ImmutableList.toImmutableList()));
   }
 
   public void start(SmallD smalld) {
@@ -108,6 +120,12 @@ public class MessageCounter {
 
     public ImmutableMap<String, Long> getAllCounts() {
       return counts;
+    }
+
+    public ImmutableBucket clearCount(String channelId) {
+      var mutable = new HashMap<>(counts);
+      mutable.remove(channelId);
+      return new ImmutableBucket(ImmutableMap.copyOf(mutable));
     }
   }
 }
