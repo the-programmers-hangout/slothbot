@@ -1,12 +1,20 @@
 package com.github.princesslana.slothbot;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.WriterConfig;
 import com.github.princesslana.jsonf.JsonF;
 import com.github.princesslana.smalld.SmallD;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.MoreFiles;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -15,9 +23,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MessageCounter {
 
+  private static final Logger LOG = LogManager.getLogger(MessageCounter.class);
   private static final Duration BUCKET_DURATION = Duration.ofSeconds(10);
   private static final int PAST_BUCKETS_SIZE = 30;
 
@@ -27,10 +38,14 @@ public class MessageCounter {
   private final AtomicReference<ImmutableList<ImmutableBucket>> pastBuckets =
       new AtomicReference<>(ImmutableList.of());
 
-  private final ScheduledExecutorService executor;
+  private final ConcurrentHashMap<String, Boolean> botCounterConfigs = new ConcurrentHashMap<>();
 
-  public MessageCounter(ScheduledExecutorService executor) {
+  private final ScheduledExecutorService executor;
+  private final Path savePath;
+
+  public MessageCounter(ScheduledExecutorService executor, Path savePath) {
     this.executor = executor;
+    this.savePath = savePath;
   }
 
   private void onGatewayPayload(String payload) {
@@ -38,7 +53,17 @@ public class MessageCounter {
   }
 
   private void onMessageCreate(JsonF d) {
-    d.get("channel_id").asString().ifPresent(currentBucket.get()::increment);
+    d.get("guild_id")
+        .asString()
+        .ifPresent(
+            guildId -> {
+              if (getBotCounterConfig(guildId)) {
+                d.get("channel_id").asString().ifPresent(currentBucket.get()::increment);
+              } else if (!d.get("webhook_id").asString().isPresent()
+                  && !d.get("author").get("bot").asBoolean().orElse(false)) {
+                d.get("channel_id").asString().ifPresent(currentBucket.get()::increment);
+              }
+            });
   }
 
   private void rotateBucket() {
@@ -79,6 +104,53 @@ public class MessageCounter {
             pbs.stream()
                 .map(b -> b.clearCount(channelId))
                 .collect(ImmutableList.toImmutableList()));
+  }
+
+  public boolean getBotCounterConfig(String guildId) {
+    return Optional.ofNullable(botCounterConfigs.get(guildId)).orElse(false);
+  }
+
+  public void setBotCounterConfig(String guildId, boolean value) {
+    if (value) {
+      botCounterConfigs.put(guildId, true);
+    } else {
+      botCounterConfigs.remove(guildId);
+    }
+    save();
+  }
+
+  private void save() {
+    var json = Json.array();
+
+    botCounterConfigs.forEach(
+        (k, v) -> json.add(Json.object().add("guild_id", k).add("count_bot_msgs", v)));
+
+    try {
+      MoreFiles.asCharSink(savePath, Charsets.UTF_8)
+          .write(json.toString(WriterConfig.PRETTY_PRINT));
+      LOG.atDebug().log("Saved {} counter configs to {}", json.size(), savePath);
+    } catch (IOException e) {
+      LOG.atWarn().withThrowable(e).log("Error saving counter configs to {}", savePath);
+    }
+  }
+
+  public void load() {
+    try {
+      var arr = JsonF.parse(MoreFiles.asCharSource(savePath, Charsets.UTF_8).read());
+
+      for (var json : arr) {
+        var guild = json.get("guild_id").asString();
+        var botCounterConfig = json.get("count_bot_msgs").asBoolean();
+
+        Optionals.ifPresent(guild, botCounterConfig, botCounterConfigs::put);
+      }
+
+      LOG.atDebug().log("Loaded {} counter configs from {}", botCounterConfigs.size(), savePath);
+    } catch (NoSuchFileException e) {
+      LOG.atInfo().log("No counter configs file at {}. One will be created if needed.", savePath);
+    } catch (IOException e) {
+      LOG.atWarn().withThrowable(e).log("Error loading counter config from {}", savePath);
+    }
   }
 
   public void start(SmallD smalld) {
