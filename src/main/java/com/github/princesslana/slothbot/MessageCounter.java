@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -53,14 +52,14 @@ public class MessageCounter {
   }
 
   private void onMessageCreate(JsonF d) {
+    var isBotMessage =
+        d.get("webhook_id").asString().isPresent()
+            || d.get("author").get("bot").asBoolean().orElse(false);
     d.get("guild_id")
         .asString()
         .ifPresent(
             guildId -> {
-              if (getBotCounterConfig(guildId)) {
-                d.get("channel_id").asString().ifPresent(currentBucket.get()::increment);
-              } else if (!d.get("webhook_id").asString().isPresent()
-                  && !d.get("author").get("bot").asBoolean().orElse(false)) {
+              if (isCountingBotMessages(guildId) || !isBotMessage) {
                 d.get("channel_id").asString().ifPresent(currentBucket.get()::increment);
               }
             });
@@ -106,16 +105,12 @@ public class MessageCounter {
                 .collect(ImmutableList.toImmutableList()));
   }
 
-  public boolean getBotCounterConfig(String guildId) {
-    return Optional.ofNullable(botCounterConfigs.get(guildId)).orElse(false);
+  public boolean isCountingBotMessages(String guildId) {
+    return botCounterConfigs.getOrDefault(guildId, false);
   }
 
   public void setBotCounterConfig(String guildId, boolean value) {
-    if (value) {
-      botCounterConfigs.put(guildId, true);
-    } else {
-      botCounterConfigs.remove(guildId);
-    }
+    botCounterConfigs.put(guildId, value);
     save();
   }
 

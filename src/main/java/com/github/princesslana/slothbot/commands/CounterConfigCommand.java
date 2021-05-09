@@ -24,42 +24,22 @@ public class CounterConfigCommand {
   }
 
   @CommandHandler(
-      commandName = "excludebotmsgs",
-      aliases = {"ebmsg"},
-      description = "Exclude bot messages for slowmode calculation in current server",
+      commandName = "count_bots",
+      description = "Change if bot messages should be counted",
       acceptFrom = IncomingScope.CHANNEL)
   @Usages({
-    @Usage(
-        usage = "",
-        description = "Exclude bot messages for slowmode calculation in current server")
+    @Usage(usage = "true", description = "Count bot messages"),
+    @Usage(usage = "false", description = "Don't count bot messages")
   })
-  public DiscordResponse excludeBotMsgs() {
+  public DiscordResponse countBots() {
     return Try.run(
         () -> {
+          Preconditions.checkArgument(request.getArgs().size() == 1, "The value must be given");
           Preconditions.checkArgument(
-              request.getArgs().isEmpty(), "This command does not take any arguments");
-          counter.setBotCounterConfig(guildId, false);
-          return DiscordResponse.of("Bot messages are excluded from slowmode calculation now.");
-        });
-  }
-
-  @CommandHandler(
-      commandName = "includebotmsgs",
-      aliases = {"ibmsg"},
-      description = "Include bot messages for slowmode calculation in current server",
-      acceptFrom = IncomingScope.CHANNEL)
-  @Usages({
-    @Usage(
-        usage = "",
-        description = "Include bot messages for slowmode calculation in current server")
-  })
-  public DiscordResponse includeBotMsgs() {
-    return Try.run(
-        () -> {
-          Preconditions.checkArgument(
-              request.getArgs().isEmpty(), "This command does not take any arguments");
-          counter.setBotCounterConfig(guildId, true);
-          return DiscordResponse.of("Bot messages are included in slowmode calculation now.");
+              request.getArgs().get(0).matches("^true|false$"), "The value must be true or false");
+          boolean value = Boolean.parseBoolean(request.getArgs().get(0));
+          counter.setBotCounterConfig(guildId, value);
+          return DiscordResponse.of(value ? "Bot messages now are counted" : "Bot messages aren't now counted");
         });
   }
 }

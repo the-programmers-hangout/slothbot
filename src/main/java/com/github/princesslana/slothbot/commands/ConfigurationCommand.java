@@ -1,6 +1,14 @@
 package com.github.princesslana.slothbot.commands;
 
-import com.github.princesslana.slothbot.*;
+import com.github.princesslana.slothbot.Channel;
+import com.github.princesslana.slothbot.Config;
+import com.github.princesslana.slothbot.Discord;
+import com.github.princesslana.slothbot.Embed;
+import com.github.princesslana.slothbot.Limiter;
+import com.github.princesslana.slothbot.MessageCounter;
+import com.github.princesslana.slothbot.Moderator;
+import com.github.princesslana.slothbot.Rate;
+import com.github.princesslana.slothbot.Self;
 import com.github.princesslana.smalld.SmallD;
 import com.google.gson.JsonObject;
 import disparse.discord.smalld.DiscordRequest;
@@ -65,7 +73,7 @@ public class ConfigurationCommand {
 
     embed.addField("Rate Limits", rateLimits.isBlank() ? "None" : rateLimits);
 
-    embed.addField("Count bot messages", counter.getBotCounterConfig(guildId) ? "Yes" : "No");
+    embed.addField("Count bot messages", counter.isCountingBotMessages(guildId) ? "Yes" : "No");
 
     return embed.toGson();
   }
