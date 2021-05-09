@@ -39,7 +39,8 @@ public class CounterConfigCommand {
               request.getArgs().get(0).matches("^true|false$"), "The value must be true or false");
           boolean value = Boolean.parseBoolean(request.getArgs().get(0));
           counter.setBotCounterConfig(guildId, value);
-          return DiscordResponse.of(value ? "Bot messages now are counted" : "Bot messages aren't now counted");
+          return DiscordResponse.of(
+              value ? "Bot messages now are counted" : "Bot messages aren't now counted");
         });
   }
 }
