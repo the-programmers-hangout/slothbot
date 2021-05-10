@@ -5,6 +5,7 @@ import com.github.princesslana.slothbot.Config;
 import com.github.princesslana.slothbot.Discord;
 import com.github.princesslana.slothbot.Embed;
 import com.github.princesslana.slothbot.Limiter;
+import com.github.princesslana.slothbot.MessageCounter;
 import com.github.princesslana.slothbot.Moderator;
 import com.github.princesslana.slothbot.Rate;
 import com.github.princesslana.slothbot.Self;
@@ -23,14 +24,21 @@ public class ConfigurationCommand {
   private final Self self;
   private final Moderator moderator;
   private final Limiter limits;
+  private final MessageCounter counter;
 
   public ConfigurationCommand(
-      SmallD smalld, DiscordRequest request, Self self, Moderator moderator, Limiter limits) {
+      SmallD smalld,
+      DiscordRequest request,
+      Self self,
+      Moderator moderator,
+      Limiter limits,
+      MessageCounter counter) {
     this.smalld = smalld;
     this.request = request;
     this.self = self;
     this.moderator = moderator;
     this.limits = limits;
+    this.counter = counter;
   }
 
   @CommandHandler(
@@ -64,6 +72,8 @@ public class ConfigurationCommand {
             .collect(Collectors.joining("\n"));
 
     embed.addField("Rate Limits", rateLimits.isBlank() ? "None" : rateLimits);
+
+    embed.addField("Count bot messages", counter.isCountingBotMessages(guildId) ? "Yes" : "No");
 
     return embed.toGson();
   }

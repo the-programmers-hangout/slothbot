@@ -17,7 +17,8 @@ public class Config {
 
   private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(32);
 
-  private static final MessageCounter MESSAGE_COUNTER = new MessageCounter(EXECUTOR);
+  private static final MessageCounter MESSAGE_COUNTER =
+      new MessageCounter(EXECUTOR, Path.of(getDataPath(), "counter.json"));
   private static final Limiter LIMITER =
       new Limiter(SMALLD, MESSAGE_COUNTER, EXECUTOR, Path.of(getDataPath(), "limits.json"));
   private static final Self SELF = new Self(SMALLD);
